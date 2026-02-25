@@ -1,0 +1,51 @@
+<div class="container">
+    <p class="tab-title">Hay Day Buildings and Products</p>
+    <div>
+        <div>
+            <label for="selType">Select Building Type:</label>
+        </div>
+        <select id="selType">
+            <option value="">--Select a Type--</option>
+        </select>
+        <!-- <input type="text" id="newTypeName" placeholder="New type name"> -->
+        <div>
+            <label for="selBuilding">Select Building:</label><span id="buildingNum"></span>
+        </div>
+        <select id="selBuilding">
+            <option value="">--Select a Building--</option>
+        </select>
+        <input type="text" id="newBuildingName" placeholder="New building name">
+        <input type="text" id="buildingLevel" placeholder="Level">
+        <button id="btnAddUpdateBuilding">Add/Update</button>
+        <button id="btnDelBuilding">Delete</button>
+    </div>
+
+    <div>
+        <div>
+            <label for="selProduct">Select a Product:</label><span id="productNum"></span>
+        </div>
+        <select id="selProduct">
+            <option value="">--Select a Product--</option>
+        </select>
+        <input type="text" id="newProductName" placeholder="New product name">
+        <input type="text" id="productLevel" placeholder="Level">
+        <input type="text" id="productTime" placeholder="Time">
+        <span id="formatedMinute"></span>
+        <input type="text" id="barnRatio" placeholder="barn to product by 10">
+        <button id="btnAddUpdProd">Add/Update</button>
+        <button id="btnDelProd">Delete</button>
+    </div>
+
+    <div id="divIngrdnt"></div>
+    <div>
+        <label for="selAddIngredient">Add Ingredients:</label><span id="ingredientNum"></span>
+    </div>
+    <select id="selAddIngredient">
+        <option value="">--Select a Product and count--</option>
+    </select>
+    <input id="ingrdngCount" type="number" step="1" placeholder="ingredient count">
+    <button id="btnAddUpdIngrdnt">Add</button>
+    <input type="text" id="buildingName" placeholder="Building name">
+    <button id="btnChngeProdBld">Update Building</button>
+    <p id="updateStatus"></p>
+</div>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hayday</title>
+    <link rel="icon" type="image/png" href="/images/everCapture.png">
+</head>
+<body>
+    <div class="tab-container">
+        <div class="tabs">
+            <a class="link-img" href="/"><img src="/images/everCapture.png" style="height: 40px;" alt="Ever Capture"></a>
+            <button class="tab-button" data-tab="manage">Manage</button>
+            <button class="tab-button" data-tab="analysis">Analysis </button>
+            <button class="tab-button" data-tab="summary">Summary</button>
+        </div>
+            <div class="error">
+                <label class="error" id="manageError"></label> 
+            </div>
+        <div class="tab-content">
+            <div id="summary" class="tab"></div>
+            <div id="manage" class="tab"></div>
+            <div id="analysis" class="tab"></div>
+        </div>
+    </div>
+    <div class="tab-container">
+    </div>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <!-- Knockout
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script> -->
+  <!-- Custom JS -->
+  <script type="module" src="../../src/scripts/apps/appHayDay/initHayDayTabs.js"></script>
+</body>
+</html>

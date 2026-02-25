@@ -1,0 +1,80 @@
+/* from add search tag */
+.tag-container {
+    display: flex;
+    align-items: center;
+    border: 0px solid #ccc;
+    padding-top: 5px;
+    padding-left: 0px;
+    padding-bottom: 10px;
+    width: 100%;
+    max-width: 100%;
+    gap: 10px;
+    /* Spacing between input and tags */
+    /* position: relative;  this impact the tag popup position */
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    /* Space between tags */
+}
+
+.tag {
+    background-color: #b4bbc2;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.update-tag:hover {
+    color: #ffdddd;
+    cursor: pointer;
+}
+
+.remove-tag {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+}
+
+.remove-tag:hover {
+    color: #ffdddd;
+}
+
+/* from dropdown */
+.tagDropdown {
+    position: absolute;
+    border: 1px solid #ccc;
+    max-height: 250px;
+    overflow-y: auto;
+    font-weight: normal;
+    color: black;
+    background: #fff;
+    font-size: smaller;
+    z-index: 1000;
+    display: none;
+    /* Hidden by default */
+}
+
+.tagDropdown div {
+    padding: 3px 8px;
+    cursor: pointer;
+}
+
+.tagDropdown div:hover {
+    background-color: #f0f0f0;
+}
+
+/* Active item styling for keydown */
+.tagDropdown .active {
+    background-color: #f1f1f1;
+}

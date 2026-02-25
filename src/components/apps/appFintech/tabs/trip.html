@@ -1,0 +1,83 @@
+<!-- <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f8f8f8;
+    }
+
+    form {
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    h2 {
+      grid-column: span 2;
+      margin: 0 0 10px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+    button {
+      grid-column: span 2;
+      padding: 10px;
+      border: none;
+      background: black;
+      color: white;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style> -->
+
+<div class="container">
+    <p class="tab-title">Trip</p>
+    <button id="btnCostByYear">Show cost by year</button>
+    <div id="divSummary"  class="hidden"></div>
+    <button id="btnAddTrip">Add a trip</button>
+    <div id="tripTable"></div>
+    <hr>
+    <select id="selTrip">
+        <option value="">-- Select a trip --</option>
+    </select>
+    <button id="btnAddTripTran" class="hidden">Add a transaction</button>
+    <span id="totalCost"></span>
+    <div id="tripTranTable"></div>
+</div>

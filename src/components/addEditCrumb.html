@@ -1,0 +1,39 @@
+<div id="imgPopup-placeholder"></div>
+<div id="addImgPopup-placeholder"></div>
+
+<main class="main-content" id="addEditContent">
+    <div id="pageTitle" class="main-top"> </div>
+    <div class="addEditContent">
+        <div id="imgContent">
+            <button class="link-button" id="btnUploadImage">Pick/Upload Image</button>
+            <div class="galleryBlock">
+                <div id="image" class="image-gallery"></div>
+            </div>
+            <hr>
+        </div>
+        <div class="control-top">
+            <label>Title:</label>
+            <input type="text" id="txtTitle" placeholder="Title" />
+            <input type="color" id="colorPicker" class="colorPicker" value="#4f5f5c">
+            <label>url:</label>
+            <input type="text" id="txtUrl" placeholder="url" />
+            <label>Date:</label>
+            <input type="date" id="dtCrumbDate" name="dtCrumbDate" required>
+            <div class="rightOnly">
+                <button class="hidden" id="btnDelToggle"></button>
+                <button class="link-button" id="btnCreateUpdate"></button>
+                <button class="link-button" id="btnCancel">Cancel</button>
+            </div>
+        </div>
+        <div class="tag-container">
+            <label>Tags:</label>
+            <input type="text" id="addTagInput" placeholder="Type to add a tag" autocomplete="off">
+            <span class="tags" id="tags"></span>
+            <div id="addTagDropdown" class="tagDropdown"></div>
+        </div>
+        <div>
+            <label>Description:</label>
+            <div id="editor"></div>
+        </div>
+    </div>
+</main>

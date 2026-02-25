@@ -1,0 +1,55 @@
+<div class="imgPopup">
+    <div class="controls">
+        <span id="prev">&#9664;</span>
+        <span id="next">&#9654;</span>
+    </div>
+    <img id="popup-img" src="" alt="Popup Photo">
+    <span class="close" id="close-popup">&times;</span>
+</div>
+<script>
+    let gallery = document.querySelectorAll('.image-gallery img');
+    const popup = document.querySelector('.imgPopup');
+    const popupImg = document.getElementById('popup-img');
+    const closeBtn = document.getElementById('close-popup');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+
+    let currentIndex = 0;
+
+    function openPopup(index) {
+        gallery = document.querySelectorAll('.image-gallery img');
+        currentIndex = index;
+        popupImg.src = gallery[currentIndex].src;
+        popupImg.title = gallery[currentIndex].id;
+        popup.classList.add('active');
+    }
+
+    function closePopup() {
+        popup.classList.remove('active');
+    }
+
+    function showNext() {
+        currentIndex = (currentIndex + 1) % gallery.length; // Loop to the beginning
+        popupImg.src = gallery[currentIndex].src;
+    }
+
+    function showPrev() {
+        currentIndex = (currentIndex - 1 + gallery.length) % gallery.length; // Loop to the end
+        popupImg.src = gallery[currentIndex].src;
+    }
+
+    gallery.forEach((img, index) => {
+        img.addEventListener('click', () => openPopup(index));
+    });
+
+    closeBtn.addEventListener('click', closePopup);
+    nextBtn.addEventListener('click', showNext);
+    prevBtn.addEventListener('click', showPrev);
+
+    // Close popup when clicking outside the image
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            closePopup();
+        }
+    });
+</script>

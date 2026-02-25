@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTech</title>
+    <link rel="icon" type="image/png" href="/images/everCapture.png">
+</head>
+
+<body>
+    <div class="tab-container">
+        <div class="tabs">
+            <a class="link-img" href="/"><img src="/images/everCapture.png" style="height: 40px;" alt="Ever Capture"></a>
+            <button class="tab-button" data-tab="transaction">Transaction</button>
+            <button class="tab-button" data-tab="stock">Stock</button>
+            <button class="tab-button" data-tab="trip">Trip</button>
+            <button class="tab-button" data-tab="tool">Tool</button>
+        </div>
+        <div class="error">
+            <label class="error" id="manageError" for="transaction"></label>
+        </div>
+        <div class="tab-content">
+            <div id="transaction" class="tab"></div>
+            <div id="stock" class="tab"></div>
+            <div id="trip" class="tab"></div>
+            <div id="tool" class="tab"></div>
+        </div>
+    </div>
+    <div class="tab-container">
+    </div>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- Knockout
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script> -->
+    <!-- Custom JS -->
+    <script type="module" src="../../src/scripts/apps/appFintech/initFintechTabs.js"></script>
+</body>
+
+</html>

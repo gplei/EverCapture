@@ -1,0 +1,24 @@
+<div id="imgPopup-placeholder"></div>
+
+<main class="main-content" id="mainContent">
+    <div class="main-top">
+        <div class="left">
+            <span>Search by:</span>
+            <a class="Image" title="Image" href="/pages/crumbs.html?type=image"></a>
+            <span>tag</span>
+            <input type="text" id="searchTagInput" placeholder="Type to search..." autocomplete="off">
+            <div id="searchTagDropdown" class="tagDropdown"></div>
+
+            <span for="dtCrumbDate">date</span>
+            <input type="date" id="dtSearchDate" name="dtsearchDate" >
+        </div>
+
+        <div class="right">
+            <span class="lbl-title" id="count"></span>
+            <a class="short" href="/pages/compact.html"></a>
+            <a class='up' id='btnShowHide' title='show/hide description' onclick=window.showHideBlock()></a>
+        </div>
+    </div>
+
+    <div id="dtContainer" class="scrollContainer" ></div>
+</main>

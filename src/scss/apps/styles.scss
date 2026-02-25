@@ -1,0 +1,213 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+
+.container {
+    max-width: 100%;
+    background: white;
+    margin: 0 auto;
+    padding: 10px;
+    justify-content: center;
+    /* Center horizontally */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: inline;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.lefts {
+    margin-right: auto;
+    /* Push other content to the right */
+}
+
+.rights {
+    margin-left: auto;
+    /* Push other content to the left */
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+
+.lightLabel {
+    font-size: small;
+    color: #7a8999;
+}
+
+select,
+input,
+button {
+    width: 150;
+    padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007bff;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.inlineSelect,
+.inlineInput,
+.inlineButton {
+
+    background-color: transparent;
+    margin: 0px;
+    padding: 0px;
+    border: 0px solid #ccc;
+}
+
+.inlineButton {
+    color: #568ec9;
+    text-decoration: none;
+}
+
+.inlineButton:hover {
+    background-color: transparent;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.inlineInput {
+    background-color: #ffffff;
+    padding: 1px;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+li {
+    margin: 5px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.borderless-input {
+    padding: 10px;
+    border: none;
+    outline: none;
+}
+
+.error {
+    margin: 10px 0;
+    color: #f75904;
+    font-weight: normal;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Tooltip container not working but good in sample*/
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    /* Position the tooltip above the text */
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+p {
+    color: #04458a;
+    // font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: small;
+}
+
+h1,
+h3 {
+    color: chocolate;
+}
+
+h1 {
+    text-align: center;
+}
+
+button {
+    background-color: #568ec9;
+}
+
+.tab-title {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 30px;
+    color: chocolate;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    /* space between forms */
+    align-items: flex-start;
+}
+
+.tag {
+    display: inline-block;
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin: 4px;
+    font-size: 14px;
+}
+
+.tag a {
+    margin-left: 8px;
+    color: red;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}

@@ -1,0 +1,411 @@
+/******************************************************************************************
+ * control whole page 
+ ******************************************************************************************/
+ body,
+ html {
+     font-family: Arial, sans-serif, Verdana;
+     background-color: #f0f0f0;
+     font-size: 12px;
+ }
+ 
+ :root {
+     --header-footer-background-color: #4f5f5c;
+     --header-footer-color: #cccccc;
+     --header-title-color: #fac832;
+     --body--background-color: #e8eaf6;
+     --container-background-color: #ffffff;
+     --container-header-background-color: #d2d0d0;
+     --control-border-color: #cccccc;
+     --crumb-title-background-color: #eeeeee;
+     --crumb-title-color: #807d7d;
+     --button-color: #ffffff;
+     --button-background-color: #007bff;
+     --button-hover-background-color: #0056b3;
+     --error-color: #f75904;
+     --delete-button-color: #f1efa4;
+     --delete-button-background-color: #a22536;
+     --delete-button-hover-background-color: #761927;
+ 
+     --header-footer-radius: 20px;
+     --container-radius: 10px;
+     --image-radius: 10px;
+     --element-radius: 5px;
+ 
+     --link-transform: translateX(2px) translateY(2px);
+     ;
+ }
+ 
+ /* Container for all header elements */
+ header,
+ footer {
+     color: var(--header-footer-color);
+     background-color: var(--header-footer-background-color);
+     padding: 10px;
+ }
+ 
+ header {
+     border-top-left-radius: var(--header-footer-radius);
+     border-top-right-radius: var(--header-footer-radius);
+ }
+ 
+ footer {
+     border-bottom-left-radius: var(--header-footer-radius);
+     border-bottom-right-radius: var(--header-footer-radius);
+     ;
+ }
+ 
+ header a {
+     text-decoration: none;
+     /* Remove underline */
+     color: var(--header-footer-color);
+     padding: 10px;
+     margin: auto;
+ }
+ 
+ header a:hover {
+     text-decoration: underline;
+     /* Add underline on hover */
+ }
+ 
+ .header-container {
+     display: flex;
+     justify-content: space-between;
+     /* Horizontal space between left and right */
+     align-items: center;
+     /* Vertically align the items in the center */
+ }
+ 
+ /* Optional styling for image */
+ header img {
+     vertical-align: middle;
+     height: 30px;
+     border-radius: var(--element-radius);
+ }
+ 
+ /* Optional styling for the title link */
+ .header-title {
+     font-size: 50px;
+     font-weight: bold;
+     text-decoration: none;
+     color: var(--header-title-color);
+ }
+ 
+ .header-title:hover {
+     text-decoration: none;
+     transform: var(--link-transform);
+     cursor: pointer;
+ }
+ 
+ /* this is the part between header and footer */
+ .body {
+     /* display is flex or block */
+     background-color: var(--body--background-color);
+ }
+ 
+ /* for login/register page */
+ .centerContainer {
+     display: block;
+     width: 500px;
+     /* Example width */
+     height: 250px;
+     padding: 10px 25px 10px 100px;
+     /* Example height */
+     flex-direction: column;
+     /* Items stack vertically */
+     margin: auto;
+     /* Centers the container itself */
+     justify-content: center;
+     /* Centers items vertically */
+     align-items: center;
+     /* Centers items horizontally */
+     background-color: var(--container-background-color);
+     /* Visual aid */
+     border-radius: var(--container-radius);
+ }
+ 
+ /******************************************************************************************
+  * side bar and main content
+  ******************************************************************************************/
+ .main-top {
+     color: var(--header-footer-background-color);
+     /* to match header background color */
+     background-color: var(--container-header-background-color);
+     border-top-left-radius: var(--container-radius);
+     border-top-right-radius: var(--container-radius);
+     padding: 10px 10px 10px 10px;
+     font-weight: bold;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+ 
+ main {
+     display: grid-block;
+     background: var(--container-background-color);
+     ;
+     max-width: 100%;
+     margin: 0 auto;
+     justify-content: center;
+     /* Center horizontally */
+ }
+ 
+ /* Main Content */
+ .main-content {
+     flex: 1;
+     margin: 5px;
+     /* top right bottom left */
+     padding: 0px;
+     /* same as side bar */
+     overflow: auto;
+     border-radius: var(--container-radius);
+ }
+ 
+ /******************************************************************************************
+  * inside main content - search tag/date bar
+  ******************************************************************************************/
+ .crumbBlock {
+     padding: 0px;
+     margin: 0px 0px 10px 0px;
+     display: block;
+     overflow: auto;
+     border: 1px solid var(--crumb-title-background-color);
+     border-radius: var(--element-radius);
+     box-shadow: 2px 2px 2px var(--container-header-background-color);
+ }
+ 
+ .crumbBlock:hover {
+     box-shadow: -2px -2px 2px var(--container-header-background-color);
+ }
+ 
+ /* title div */
+ .title {
+     border: 1px solid var(--crumb-title-background-color);
+     padding: 5px;
+     background: var(--crumb-title-background-color)
+ }
+ 
+ .desc {
+     color: var(--crumb-title-color);
+     margin: 10px;
+ }
+ 
+ .scrollContainer {
+     height: 1000px;
+     /* set height so it scrolls */
+     margin: 0px;
+     padding: 10px;
+     overflow: auto;
+ }
+ 
+ /******************************************************************************************
+  button lable
+  ******************************************************************************************/
+ .link-img,
+ .link-button,
+ .lnk-title,
+ .lnk-tag {
+     display: inline-block;
+     /* enable transition ? */
+     text-decoration: none;
+     border: none;
+ }
+ 
+ .link-img:hover,
+ .link-button:hover {
+     text-decoration: none;
+     transition: background-color 0.3s ease, transform 0.2s ease;
+     transform: var(--link-transform);
+ }
+ 
+ .link-button {
+     color: var(--button-color);
+     background-color: var(--button-background-color);
+     padding: 5px 10px;
+     border-radius: var(--element-radius);
+ }
+ 
+ /* Hover and Active States */
+ .link-button:hover {
+     background-color: var(--button-hover-background-color);
+     cursor: pointer;
+ }
+ 
+ .lnk-title,
+ .lnk-tag,
+ .lbl-title {
+     color: var(--crumb-title-color);
+     padding: 0px 4px;
+ }
+ 
+ .lnk-title:hover,
+ .lnk-tag:hover {
+     text-decoration: underline;
+ }
+ 
+ .lnk-tag,
+ .lbl-title {
+     font-weight: normal;
+ }
+ 
+ .lbl-title {
+     font-style: italic;
+ }
+ 
+ /******************************************************************************************
+  image
+  ******************************************************************************************/
+ .image-container,
+ .image-gallery {
+     width: 100%;
+     display: flex;
+     flex-wrap: wrap;
+     /* Allows images to wrap to the next row */
+     gap: 10px;
+     /* Space between images */
+     justify-content: flex-start;
+     /* Align items to the left */
+     position: relative;
+     display: flex;
+     /* Center horizontally */
+     align-items: center;
+     /* Center vertically */
+     padding: 0px;
+     /* margin: auto; */
+     margin: 0px 10px 10px 0px;
+ }
+ 
+ .image-container img,
+ .image-gallery img {
+     max-width: 100%;
+     height: 150px;
+     width: 150px;
+     object-fit: cover;
+     margin-top: 10px 10px 0px 0px;
+     box-shadow: 3px 3px 3px var(--control-border-color);
+     border-radius: var(--element-radius);
+ }
+ 
+ /* click on an imgae show popup */
+ .image-gallery img:hover {
+     cursor: pointer;
+     transform: var(--link-transform);
+ }
+ 
+ .galleryBlock {
+     padding: 10px 0px 0px 0px;
+     margin-right: 0px;
+     margin-bottom: 0px;
+     background-color: var(--container-background-color);
+ }
+ 
+ /*******************************************************************************
+ * hover image show delete
+ ********************************************************************************/
+ .image-wrapper {
+     position: relative;
+     /* Ensures the delete button is positioned relative to each image */
+ }
+ 
+ .image-wrapper img {
+     display: block;
+     /* Removes inline spacing */
+     max-width: 150px;
+     /* Adjust image size */
+     border-radius: var(--image-radius);
+     /* Optional: rounded corners */
+ }
+ 
+ .delete-button {
+     position: absolute;
+     bottom: 0px;
+     right: 0px;
+     display: none;
+     /* Hidden by default */
+     padding: 5px 10px;
+     background-color: var(--delete-button-background-color);
+     color: var(--delete-button-color);
+     border: none;
+     font-size: smaller;
+     border-radius: var(--element-radius);
+     cursor: pointer;
+ }
+ 
+ .image-wrapper:hover .delete-button {
+     display: block;
+     /* Show the button on hover */
+ }
+ 
+ .delete-button:hover {
+     background-color: var(--delete-button-hover-background-color);
+     /* Optional: highlight effect on hover */
+ }
+ 
+ /******************************************************************************************
+  * generic style
+  * label and h1 is used in form as login/register/reset and addEditCrumb forms
+  ******************************************************************************************/
+ label,
+ h1 {
+     color: var(--header-footer-background-color);
+ }
+ 
+ label {
+     display: inline;
+     margin: 0px;
+     font-weight: bold;
+ }
+ 
+ select,
+ input {
+     width: 150;
+     padding: 2px 5px;
+     border: 1px solid var(--control-border-color);
+     border-radius: var(--element-radius);
+ }
+ 
+ .colorPicker {
+     appearance: none;
+     width: 25px;
+     height: 25px;
+     border: none;
+     padding: 0px;
+     border-radius: 0px;
+     background-color: transparent;
+     /* Removes any default background */
+     outline: none;
+     /* Removes focus outline */
+     -webkit-appearance: none;
+     /* For Safari */
+     cursor: pointer;
+ }
+ 
+ .error {
+     margin: 10px 0;
+     color: var(--error-color);
+     font-weight: normal;
+ }
+ 
+ .hidden {
+     display: none;
+ }
+ 
+ .center {
+     text-align: center;
+ }
+ 
+ .left {
+     float: left;
+ }
+ 
+ .right {
+     float: right;
+ }
+ .control-top {
+     display: flex;
+     align-items: center; /* Aligns both elements vertically */
+     gap: 8px; /* Adds spacing between input and color picker */
+     /* Vertically align the items in the center */
+ }
+ .rightOnly {
+     margin-left: auto;
+ }

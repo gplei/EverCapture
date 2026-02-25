@@ -1,0 +1,53 @@
+{
+    "name": "evercapturets",
+    "private": true,
+    "version": "1.0.0",
+    "description": "Ever Capture is an app that allows users to add notes or pictures that can be tagged and viewed in both daily and monthly calendar formats. Users can easily upload images or write notes and organize them with custom tags such as \"Work,\" \"Personal,\" or \"Travel.\"",
+    "main_": "server.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "startS": "node ./server/server.js",
+        "start": "caffeinate -s node ./server/server.js",
+        "build-css": "cd public && npx sass scss:css",
+        "build-app-css": "cd Components/apps/appCommon && npx sass scss:css",
+        "init-db": "if [ ! -f ./server/db/evercapture.db ]; then sqlite3 ./server/db/evercapture.db < ./server/db/sqlite_schema.sql; fi",
+        "build-all-css": "npm run build-css && npm run build-app-css",
+        "postinstall_": "npm run build-all-css && npm run init-db"
+    },
+    "type": "module",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@tensorflow/tfjs": "^4.22.0",
+        "@tensorflow/tfjs-node": "^4.22.0",
+        "axios": "^1.7.9",
+        "bcrypt": "^5.1.1",
+        "cheerio": "^1.0.0",
+        "cookie-session": "^2.1.1",
+        "cors": "^2.8.5",
+        "csv-parser": "^3.2.0",
+        "exif": "^0.6.0",
+        "express": "^4.21.1",
+        "express-session": "^1.18.2",
+        "fs": "^0.0.1-security",
+        "jquery": "^3.7.1",
+        "jsdom": "^22.1.0",
+        "multer": "^1.4.5-lts.1",
+        "mysql2": "^3.11.4",
+        "natural": "^8.0.1",
+        "node-fetch": "^3.3.2",
+        "path": "^0.12.7",
+        "sqlite3": "^5.1.7",
+        "yahoo-finance2": "^2.13.3"
+    },
+    "devDependencies": {
+        "@types/jquery": "^3.5.33",
+        "sass": "^1.93.2",
+        "typescript": "~5.8.3",
+        "vite": "^7.1.7"
+    }
+}

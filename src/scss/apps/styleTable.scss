@@ -1,0 +1,117 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0px;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: top;
+    position: relative;
+    /* Needed for resizer positioning */
+}
+
+th {
+    background-color: #568ec9;
+    /* Blue Header */
+    user-select: none;
+    color: white;
+    font-weight: bold;
+    font-size: medium;
+    text-transform: capitalize;
+    padding: 8px;
+}
+
+td {
+    font-size: small;
+    padding: 5px 5px 5px 8px;
+}
+
+.inlineTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0px;
+    padding: 0px;
+}
+
+.inlineTd {
+    border: 1px solid #ddd;
+}
+
+.details {
+    background-color: #f9f9f9;
+}
+
+.subDiv {
+    background-color: #ffffff;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+    /* Light gray alternate rows */
+}
+
+tr:nth-child(odd) {
+    background-color: #fff;
+    /* Light gray alternate rows */
+}
+
+tr:hover {
+    background-color: #ddd;
+    /* Hover effect */
+}
+
+td,
+p {
+    color: #04458a;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: small;
+}
+
+.resizer {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+}
+
+.resizer:hover {
+    background: #3498db;
+}
+    th.sorted-asc::after { content: " ▲"; }
+    th.sorted-desc::after { content: " ▼"; }
+
+.table-container {
+    width: auto;
+    /* set width as needed */
+    height: 500px;
+    /* fixed height for scrolling */
+    overflow-y: auto;
+    /* vertical scroll */
+    overflow-x: auto;
+    /* horizontal scroll if table is wide */
+    border: 1px solid #ccc;
+}
+
+th[type="main"], td[type="main"] {
+    background: #f0f0f0;
+}
+
+th[type="sub"], td[type="sub"] {
+    background: #aed5eb;
+    font-size: small;
+    font-weight:  bold;
+}

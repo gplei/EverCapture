@@ -1,0 +1,21 @@
+<div class="modal" id="uploadImage">
+    <div class="modal-content">
+        <div class="modal-title">
+            <span>Pick/Upload Image</span>
+        </div>
+        <input type="file" id="fileInput" multiple accept="image/*,video/*">
+        <br>
+        <button class="ok-button" id="btnImagePick" >Pick</button>
+        <button class="ok-button" id="btnImageUpload">Upload</button>
+        <button class="cancel-button" id="btnImageCancel">Cancel</button>
+    </div>
+</div>
+<script>
+    // handle click outside of popup to hide popup
+    window.addEventListener('click', (event) => {
+        if (event.target === uploadImage) {
+            uploadImage.style.display = 'none';
+            fileInput.value = '';
+        }
+    });
+</script>

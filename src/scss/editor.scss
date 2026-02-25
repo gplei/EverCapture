@@ -1,0 +1,308 @@
+.edBold,
+.edItalic,
+.edUnderline,
+.edUL,
+.edOL,
+.edLink,
+.edUnlink,
+.edIndent,
+.edOutdent,
+.edDesign,
+.edPreview,
+.edHTML,
+.edErase,
+.edLeft,
+.edCenter,
+.edRight,
+.edImage,
+.edNone {
+    display: inline-block;
+    border: 1px solid Transparent;
+    width: 15px;
+    height: 15px;
+    background: url("/images/editor.gif") no-repeat 0 0;
+    background-position: 0px 0px;
+    text-decoration: none;
+}
+
+.edBold,
+.edItalic,
+.edUnderline,
+.edUL,
+.edOL,
+.edLink,
+.edUnlink,
+.edIndent,
+.edOutdent,
+.edDesign,
+.edPreview,
+.edHTML,
+.edErase,
+.edLeft,
+.edCenter,
+.edRight,
+.edImage,
+.edNone:hover {
+    cursor: pointer;
+}
+
+.edBold {
+    background-position: 0px 0px;
+}
+
+.edBold:hover {
+    background-position: -16px 0px;
+}
+
+.edBoldActive {
+    background-position: -32px 0px;
+}
+
+.edItalic {
+    background-position: 0px -16px;
+}
+
+.edItalic:hover {
+    background-position: -16px -16px;
+}
+
+.edItalicActive {
+    background-position: -32px -16px;
+}
+
+.edUnderline {
+    background-position: 0px -32px;
+}
+
+.edUnderline:hover {
+    background-position: -16px -32px;
+}
+
+.edUnderlineActive {
+    background-position: -32px -32px;
+}
+
+.edUL {
+    background-position: 0px -48px;
+}
+
+.edUL:hover {
+    background-position: -16px -48px;
+}
+
+.edULActive {
+    background-position: -32px -48px;
+}
+
+.edOL {
+    background-position: 0px -64px;
+
+}
+
+.edOL:hover {
+    background-position: -16px -64px;
+
+}
+
+.edOLActive {
+    background-position: -32px -64px;
+
+}
+
+.edLink {
+    background-position: 0px -80px;
+}
+
+.edLink:hover {
+    background-position: -16px -80px;
+}
+
+.edLinkActive {
+    background-position: -32px -80px;
+}
+
+.edUnlink {
+    background-position: 0px -96px;
+}
+
+.edUnlink:hover {
+    background-position: -16px -96px;
+}
+
+.edUnlinkActive {
+    background-position: -32px -96px;
+
+}
+
+.edIndent {
+    background-position: 0px -112px;
+}
+
+.edIndent:hover {
+    background-position: -16px -112px;
+}
+
+.edIndentActive {
+    background-position: -32px -112px;
+}
+
+.edOutdent {
+    background-position: 0px -128px;
+}
+
+.edOutdent:hover {
+    background-position: -16px -128px;
+}
+
+.edOutdentActive {
+    background-position: -32px -128px;
+}
+
+.edDesign {
+    background-position: 0px -144px;
+}
+
+.edDesign:hover {
+    background-position: -16px -144px;
+}
+
+.edDesignActive {
+    background-position: -32px -144px;
+}
+
+.edPreview {
+    background-position: 0px -160px;
+}
+
+.edPreview:hover {
+    background-position: -16px -160px;
+}
+
+.edPreviewActive {
+    background-position: -32px -160px;
+}
+
+.edHTML {
+    background-position: 0px -176px;
+}
+
+.edHTML:hover {
+    background-position: -16px -176px;
+}
+
+.edHTMLActive {
+    background-position: -32px -176px;
+}
+
+.edErase {
+    background-position: 0px -192px;
+}
+
+.edErase:hover {
+    background-position: -16px -192px;
+}
+
+.edEraseActive {
+    background-position: -32px -192px;
+}
+
+.edLeft {
+    background-position: 0px -208px;
+}
+
+.edLeft:hover {
+    background-position: -16px -208px;
+}
+
+.edLeftActive {
+    background-position: -32px -208px;
+}
+
+.edCenter {
+    background-position: 0px -224px;
+}
+
+.edCenter:hover {
+    background-position: -16px -224px;
+}
+
+.edCenterActive {
+    background-position: -32px -224px;
+}
+
+.edRight {
+    background-position: 0px -240px;
+}
+
+.edRight:hover {
+    background-position: -16px -240px;
+}
+
+.edRightActive {
+    background-position: -32px -240px;
+}
+
+.edImage {
+    background-position: 0px -256px;
+}
+
+.edImage:hover {
+    background-position: -16px -256px;
+}
+
+.edImageActive {
+    background-position: -32px -256px;
+}
+
+.none {
+    background-position: 0px -272px;
+}
+
+.none:hover {
+    background-position: 0px -272px;
+}
+
+.noneActive {
+    background-position: -32px -272px;
+}
+
+button.pmBtnActive {
+    border: 1px solid #0A246A;
+    background-color: #C2CBE0;
+}
+
+#divEditorContainer {
+    padding: 0px;
+    background-color: #FFFFFF;
+    font-size: small;
+}
+
+#editor {
+    margin-top: 10px;
+}
+
+.editor {
+    border-left: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    padding: 10px;
+    margin: 0px;
+    overflow: auto;
+    flex: 1;
+    height: 600px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#divViewBar,
+#divToolBar {
+    padding: 5px;
+    background-color: #f9f9f9;
+    height: auto;
+    border: 1px solid #CCCCCC;
+    vertical-align: middle;
+}
+
+.addEditContent {
+    padding: 10px;
+    background-color: #ffffff;
+}

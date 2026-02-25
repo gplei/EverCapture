@@ -1,0 +1,31 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+CREATE DATABASE hayday;
+
+USE hayday;
+
+drop table products;
+drop table buildings;
+
+CREATE TABLE fin_symbol (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    symbol VARCHAR(255) NOT NULL UNIQUE,
+    company_name VARCHAR(255),
+    price DECIMAL(10,2) NOT NULL DEFAULT 0
+);
+
+CREATE TABLE fin_trade (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    symbol_id INT NOT NULL,  -- Stock ticker symbol (e.g., AAPL, TSLA)
+    trade_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Trade timestamp
+    trade_type ENUM('BUY', 'SELL') NOT NULL, -- Trade direction
+    share INT NOT NULL CHECK (share > 0), -- Number of shares traded
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0), -- Trade price per share
+    total DECIMAL(12,2) GENERATED ALWAYS AS (
+        CASE 
+            WHEN trade_type = 'BUY' THEN - (share * price)
+            ELSE (share * price)
+        END
+    ) STORED,
+    FOREIGN KEY (symbol_id) REFERENCES fin_symbol(id) ON DELETE CASCADE
+);

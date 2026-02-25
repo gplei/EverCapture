@@ -1,0 +1,59 @@
+@use 'ecStyle';
+
+.side-top {
+    @extend .main-top;
+    text-align: center;
+}
+
+.sidebar {
+    /* outside */
+    background-color: var(--container-background-color);
+    /* reveals conner white but fill the height */
+    width: 220px;
+    margin: 10px 0px 10px 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-radius: var(--container-radius);
+}
+
+.side-container {
+    /* inside */
+    background-color: var(--container-background-color);
+    margin: 10px;
+}
+
+.side-divider {
+    display: flex;
+    position: relative;
+    /* Allows positioning of the group name */
+    border-top: 1px solid var(--container-header-background-color);
+    margin: 10px 0;
+    justify-content: center;
+}
+
+.group-name {
+    position: absolute;
+    top: -8px;
+    /* Place the group name above the border */
+    left: -10px;
+    background-color: var(--container-background-color);
+    /* Match container's background color */
+    padding: 0 10px;
+    /* Add padding around the text */
+    color: var(--container-header-background-color);
+    /* match header background color */
+}
+
+/* show tool tip on mobile device */
+.custom-tooltip {
+    position: absolute;
+    background-color: var(--container-header-background-color);
+    color: var(--header-footer-background-color);
+    padding: 5px;
+    border-radius: var(--element-radius);
+    display: none;
+    font-weight: lighter;
+    pointer-events: none;
+    z-index: 1000;
+}
+

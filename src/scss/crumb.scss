@@ -1,0 +1,51 @@
+@use "ecStyle";
+/* This file styles crumb.html */
+
+.crumb-detail {
+    @extend .scrollContainer;
+    background-size: cover;
+    /* Ensures the image covers the entire div */
+    background-position: center;
+    /* Centers the image */
+    background-repeat: no-repeat;
+    /* Prevents tiling */
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/images/bkgFood.jpg') center/cover no-repeat;
+    /* opacity from top and bottom */
+    background-size: 100% 100%;
+    /* stetch to fit the div size */
+}
+.crumb-desc {
+    @extend .desc;
+    margin: 0px;
+}
+.recipe {
+    color: #50ace5;
+}
+
+// for normal ul/li nest
+.recipe>ul>li {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.recipe>ul>li>ul>li {
+    color: #3a8551;
+}
+
+.recipe>ul>li>ul>li>ul>li {
+    color: #50ace5;
+    font-weight: bold;
+}
+
+// for ul/ul nest
+.recipe>ul>ul>li {
+    color: #3a8551;
+}
+
+// .menu {
+//     height: 1000px;
+//     /* set height so it scrolls */
+//     overflow: auto;
+//     margin: 0px;
+//     padding: 10px;
+// }

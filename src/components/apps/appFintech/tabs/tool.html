@@ -1,0 +1,34 @@
+<div class="container">
+    <p class="tab-title">Tools</p>
+    <span style="font-weight: bold;">Generate Code</span>
+    <select id="selTool" required>
+        <option value="">-- Select a Tool --</option>
+    </select>
+    <span id="codeParam"></span>
+    <input id="crud" type="checkbox" name="name" , value="value">
+    <button id="btnGenerate">Generate Code</button>
+
+    <div id="divSql">
+        <span style="font-weight: bold;">Execute Sql</span>
+        <select id="selSql">
+            <option value="">-- Select a sql --</option>
+        </select>
+        <span id="sqlParam"></span>
+        <button id="btnShowData">Show Data</button>
+    </div>
+    <div id="divData">
+        <span style="font-weight: bold;">Show Data</span>
+        <select id="selSchema">
+            <option>-- Select a schema --</option>
+            <option>ever_capture</option>
+            <option>fintech</option>
+            <option>hayday</option>
+        </select>
+        <select id="selTable">
+            <option>-- Select a table --</option>
+        </select>
+        <span id="count" style="color: grey"></span>
+    </div>
+    <textarea id="code" class="hidden" style="width:100%; height:300px"></textarea>
+    <div id="sqlResult"></div>
+</div>

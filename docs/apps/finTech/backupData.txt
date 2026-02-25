@@ -1,0 +1,111 @@
+const categoryData = [
+    {
+        name: splitCatName
+    },
+    {
+        name: "Housing",
+        children: [
+            "Rent",
+            "Mortgage",
+            "Property Tax",
+            "HOA",
+            "Home Insurance",
+            "Utilities",
+            "Home Maintenance",
+            "Furniture"
+        ]
+    },
+    {
+        name: "Food",
+        children: [
+            "Grocery",
+            "Dining Out",
+            "Coffee/Snacks",
+            "Alcohol",
+            "Delivery"
+        ]
+    },
+    {
+        name: "Transportation",
+        children: [
+            "Gas",
+            "Car Insurance",
+            "Car Maintenance",
+            "Parking",
+            "Public Transit",
+            "Ride Share",
+            "Flight"
+        ]
+    },
+    {
+        name: "Health",
+        children: [
+            "Insurance",
+            "Doctor",
+            "Dental",
+            "Pharmacy",
+            "Gym"
+        ]
+    },
+    {
+        name: "Personal",
+        children: [
+            "Clothing",
+            "Beauty",
+            "Haircut",
+            "Gift",
+            "Donation"
+        ]
+    },
+    {
+        name: "Entertainment",
+        children: [
+            "Streaming",
+            "Movie",
+            "Event",
+            "Book",
+            "Hobby"
+        ]
+    },
+    {
+        name: "Travel",
+        children: [
+            "Hotel",
+            "Transport",
+            "Food",
+            "Activity",
+            "Shopping"
+        ]
+    },
+    {
+        name: "Financial",
+        children: [
+            "Bank Fee",
+            "Interest",
+            "Tax"
+        ]
+    },
+    {
+        name: "Income",
+        children: [
+            "Salary",
+            "Bonus",
+            "Investment",
+            "Interest",
+            "Cashback",
+            "Reimbursement"
+        ]
+    },
+    {
+        name: "Transfer",
+        children: [
+            "Bank Transfer",
+            "Credit Card Payment",
+            "Friend Settlement",
+            "Cash Withdrawal"
+        ]
+    },
+    {
+        name: "Other"
+    }
+];

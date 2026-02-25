@@ -1,0 +1,38 @@
+<div class="container">
+    <p class="tab-title">Storage capacity calculator</p>
+    <label for="capacitySelect">Kit needed to upgrade 1 level to</label>
+    <select id="capacitySelect" onchange="capacityChanged()">
+        <option value="">--Select a capacity--</option>
+    </select>
+    <span>Kit Needed: </span><span id="kitNum"></span>
+    <div>
+        <label for="fromKit">Kit needed to upgrade from</label>
+        <input hidden type="text" id="fromKit" placeholder="from kit needed" >
+        <select id="fromCapacitySelect" onchange="fromtoCapacityChanged()">
+            <option value="">--Select a from capacity--</option>
+        </select>
+        <label for="toCapacitySelect">to</label>
+        <select id="toCapacitySelect" onchange="fromtoCapacityChanged()">
+            <option value="">--Select a to capacity--</option>
+        </select>
+        <span id="totalKitNum"></span>
+    </div>
+    <form id="formExchange">
+        <p>Exchange Ratio (upgrad barn kit : product)</p>
+        <div>
+        <label>Ratio: Barn</label>
+        <input id="ratioIn" type="number" step="1" value="10" placeholder="barn in">
+        <span> : </span>
+        <select id="selProduct" >
+            <option value="">--Select a product--</option>
+        </select>
+        <input id="ratioOut" type="number" step="1" placeholder="product out"> 
+        </div>
+        <label>Result: Barn</label>
+        <input id="resultIn" type="number" step="1" placeholder="in">
+        <span id="selectedProduct"> : Selected product</span>
+        <input id="resultOut" type="number" step="1" placeholder="out">
+        <button id="calculate" type="submit">Calculate</button>
+    </form>
+    <div id="divExchangeProducts"></div>
+</div>

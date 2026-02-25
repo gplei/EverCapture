@@ -1,0 +1,30 @@
+<link rel="stylesheet" href="/css/compact.css">
+<link rel="stylesheet" href="/css/Tools.css">
+<link rel="stylesheet" href="/css/tag.css">
+
+<script type="module" src="/src/scripts/compact.js"></script>
+<title>Detail view</title>
+
+<div id="imgPopup-placeholder"></div>
+
+<main class="main-content" id="mainContent">
+    <div class="main-top">
+        <div class="left">
+            <span>Search by:</span>
+            <a class="Image" href="/pages/compact.html?type=image"></a>
+            <span>tag</span>
+            <input type="text" id="searchTagInput" placeholder="Type to search..." autocomplete="off">
+            <div id="searchTagDropdown" class="tagDropdown"></div>
+            <span for="dtCrumbDate">date</span>
+            <input type="date" id="dtSearchDate" name="dtsearchDate">
+
+        </div>
+        <div class="right">
+            <span class="lbl-title" id="count"></span>
+            <a class="long" href="/pages/crumbs.html"></a>
+            <a class='up' id='btnShowHide' title='show/hide description' onclick=showHideBlock()></a>
+        </div>
+    </div>
+
+    <div id="dtContainer" class="scrollContainer"></div>
+</main>

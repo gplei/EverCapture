@@ -1,0 +1,62 @@
+-- clean up orphan tags
+-- get the ids and 
+(SELECT concat(t.id, ',')
+FROM ec_tag t
+LEFT JOIN ec_crumb_tag nt ON t.id = nt.tag_id
+WHERE nt.tag_id IS NULL);    
+-- and delete the ids
+delete from ec_tag where id in ()
+
+-- get crumb with tags
+SELECT c.id, c.date, c.title, c.url, c.description, c.pin, t.tag_name 
+FROM ec_crumb c 
+LEFT JOIN ec_crumb_tag x on c.id = x.crumb_id 
+LEFT JOIN ec_tag t on x.tag_id=t.id 
+WHERE c.user_id = ? 
+ORDER BY c.created_at desc
+
+
+use ever_capture;
+
+create database ever_capture;
+drop database ever_capture;
+
+drop table ec_user;
+drop table ec_crumb;
+drop table ec_tag;
+drop table ec_image;
+drop table ec_crumb_tag;
+
+select * from ec_user;
+select count(*) from ec_crumb;
+select count(*) from ec_tag;
+select * from ec_image;
+select count(*) from ec_crumb_tag;
+
+delete from ec_crumb_tag where id>0;
+delete from ec_tag where id>0;
+delete from ec_image where id>0;
+delete from ec_crumb where id>0;
+delete from ec_user where id > 0;
+select * from ec_user;
+commit;
+use ever_capture_all;
+select count(*) from ec_crumb;
+
+show tables;
+
+SELECT table_name, table_rows 
+FROM information_schema.tables 
+WHERE table_schema = DATABASE();
+
+use pinabc;
+select * from pm_bookmark where uid=38009;
+
+select * from ec_tag where tag_name like '%website%';
+delete from ec_tag where tag_name = 'xMy Websites';
+
+select * from ec_crumb_tag where tag_id=1055;
+
+MySQL
+~/server/db/convert >
+/usr/local/mysql/bin/mysqldump -u root -p --no-data ever_capture > mysql_schema.sql

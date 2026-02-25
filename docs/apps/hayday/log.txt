@@ -1,0 +1,19 @@
+2024
+
+05/17
+Done manage buildings
+
+05/17
+Done manage product and ingredient
+
+05/18
+was 239 product become 373 after massive insert from spreadsheet
+391 after added all manually
+
+tab sample /Users/ping/work/hayday/sample/tab
+
+start a local WebServer to enable ajax fetch
+python3 -m http.server
+http://[::]:8000/
+
+~/public/fintech/ npx sass --watch scss/:css/

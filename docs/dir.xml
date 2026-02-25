@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="everCaptureTS">
+
+  <folders>
+
+    <!-- Documentation -->
+    <folder path="/docs">
+      <description>Project documentation</description>
+      <folder path="/docs/apps">
+        <description>Per-app documentation</description>
+      </folder>
+    </folder>
+
+    <!-- Pages -->
+    <folder path="/pages">
+      <description>HTML entry pages</description>
+      <folder path="/pages/apps">
+        <description>Per-app HTML pages</description>
+      </folder>
+    </folder>
+
+    <!-- Public assets -->
+    <folder path="/public">
+      <description>Static assets served as-is</description>
+      <folder path="/public/apps">
+        <description>App-specific public files</description>
+      </folder>
+      <folder path="/public/components">
+        <description>Reusable HTML components</description>
+      </folder>
+      <folder path="/public/images">
+        <description>Image assets</description>
+      </folder>
+    </folder>
+
+    <!-- Source code -->
+    <folder path="/src">
+      <description>All source code and scripts</description>
+      <folder path="/src/scripts">
+        <description>Client-side scripts</description>
+        <folder path="/src/scripts/apps">
+          <description>Per-app client-side scripts</description>
+        </folder>
+      </folder>
+      <folder path="/src/scss">
+        <description>SCSS styles</description>
+        <folder path="/src/scss/apps">
+          <description>Per-app SCSS files</description>
+        </folder>
+      </folder>
+      <folder path="/src/server">
+        <description>Server-side code</description>
+        <folder path="/src/server/apps">
+          <description>Per-app server code (routes, controllers, services, db, server-components)</description>
+        </folder>
+      </folder>
+    </folder>
+
+  </folders>
+
+</project>
+<!-- <?xml version="1.0" encoding="UTF-8"?>
+<project name="EverCaptureTS">
+
+  <overview>
+    <description>Collection of personal web applications.</description>
+    <techStack>
+      <backend>Node.js</backend>
+      <language>TypeScript</language>
+      <database>MySQL</database>
+      <frontend>Vanilla JS</frontend>
+    </techStack>
+  </overview>
+
+  <everCaptureTS>
+    <everCaptureTS name="docs" path="/ledger-app" />
+    <everCaptureTS name="pages" path="/trip-app" />
+  </everCaptureTS>
+
+  <shared>
+    <folder path="/shared">
+      <description>Shared utilities and types</description>
+    </folder>
+  </shared>
+
+</project>
+
+everCaptureTS
+    docs
+        apps
+    pages
+        apps
+    public
+        apps
+        components
+        images
+    src
+        scripts
+            apps
+        scss
+            apps
+        server
+            apps -->

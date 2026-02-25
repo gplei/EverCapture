@@ -1,0 +1,96 @@
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<div id="divToolBar">
+    <!-- Basic Formatting -->
+    <button class="edBold" onclick="formatText('bold')"></button>
+    <button class="edItalic" onclick="formatText('italic')"></button>
+    <button class="edUnderline" onclick="formatText('underline')"></button>
+
+    <!-- Font and Color -->
+    <select onchange="formatText('fontName', this.value)">
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Verdana">Verdata</option>
+    </select>
+    <select onchange="formatText('foreColor', this.value)">
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+    </select>
+
+    <!-- Insert Link and Image -->
+    <button class="edLink" onclick="createLink()"></button>
+    <button class="edUnlink" onclick="removeLink()"></button>
+    <button class="edImage" onclick="insertImage()"></button>
+
+    <!-- Lists and Indentation -->
+    <button class="edOL" onclick="formatText('insertOrderedList')"></button>
+    <button class="edUL" onclick="formatText('insertUnorderedList')"></button>
+    <button class="edOutdent" onclick="formatText('outdent')"></button>
+    <button class="edIndent" onclick="formatText('indent')"></button>
+
+    <!-- Text Alignment -->
+    <button class="edLeft" onclick="formatText('justifyLeft')"></button>
+    <button class="edCenter" onclick="formatText('justifyCenter')"></button>
+    <button class="edRight" onclick="formatText('justifyRight')"></button>
+    <!-- <button class="" onclick="formatText('justifyFull')"></button> -->
+
+    <!-- Clear Formatting -->
+    <button class="edErase" onclick="clearFormatting()"></button>
+</div>
+<!-- Editable Content Area -->
+<div id="divEditorContainer">
+    <div id="designTextArea" class="editor" contenteditable="true"></div>
+    <textarea id="htmlTextArea" class="editor hidden"></textarea>
+</div>
+<div id="divViewBar">
+    <button id="lnkDesign" title="Design" class="edDesign cmdView pmBtnActive"
+        onclick="cmdViewChanged(this.title)"></button>
+    <button id="lnkHTML" title="HTML" class="edHTML cmdView" onclick="cmdViewChanged(this.title)"></button>
+</div>
+
+<script>
+    function cmdViewChanged(view) {
+        if (view === 'Design') {
+            htmlTextArea.classList.add('hidden');
+            designTextArea.innerHTML = htmlTextArea.value;
+            designTextArea.classList.remove('hidden');
+            lnkDesign.classList.add('pmBtnActive');
+            lnkHTML.classList.remove('pmBtnActive');
+        } else if (view === 'HTML') {
+            designTextArea.classList.add('hidden');
+            htmlTextArea.value = designTextArea.innerHTML;
+            htmlTextArea.classList.remove('hidden');
+            lnkHTML.classList.add('pmBtnActive');
+            lnkDesign.classList.remove('pmBtnActive');
+        }
+        return false;
+    }
+    function formatText(command, value = null) {
+        document.execCommand(command, false, value);
+    }
+
+    function clearFormatting() {
+        document.execCommand('removeFormat', false, null);
+    }
+
+    function createLink() {
+        const url = prompt("Enter the URL:");
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+    }
+
+    function removeLink() {
+        document.execCommand('unlink', false, null);
+    }
+
+    function insertImage() {
+        const imageUrl = prompt("Enter the Image URL:");
+        if (imageUrl) {
+            document.execCommand('insertImage', false, imageUrl);
+        }
+    }
+</script>

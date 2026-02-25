@@ -1,0 +1,76 @@
+2024
+
+05/17
+Done manage buildings
+
+05/17
+Done manage product and ingredient
+
+05/18
+was 239 product become 373 after massive insert from spreadsheet
+391 after added all manually
+
+tab sample /Users/ping/work/hayday/sample/tab
+
+start a local WebServer to enable ajax fetch
+python3 -m http.server
+http://[::]:8000/
+
+~/public/appCommon/ npx sass --watch scss/:css/
+
+  SELECT COLUMN_TYPE 
+  FROM INFORMATION_SCHEMA.COLUMNS 
+  WHERE TABLE_NAME = 'purchases' 
+  AND COLUMN_NAME = 'category';
+
+2025
+02/26
+/usr/local/mysql/bin/mysqldump -u root -p --no-data fintech > schema.sql
+
+/usr/local/mysql/bin/mysqldump -u root -p hayday > hayday.sql
+/usr/local/mysql/bin/mysqldump -u root -p fintech > fintech.sql
+/usr/local/mysql/bin/mysqldump -u root -p ever_capture > ever_capture.sql
+
+03/01
+
+git config --global alias.rebase-auto '!git fetch origin && git stash -u && git rebase master && git stash pop'
+git rebase-auto
+
+2026
+02/11
+This table stores anual data downloaded from credit card. 
+CREATE TABLE transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE,
+    description VARCHAR(255),
+    debit DECIMAL(10,2) DEFAULT 0.00,
+    credit DECIMAL(10,2) DEFAULT 0.00,
+    card_member VARCHAR(100),
+    card_type VARCHAR(50),
+    note TEXT
+);
+
+* First export data from citi and amex as csv and rename as <year>_<card>, such as 2025_amex etc
+  city_double_cash, city_costco, amex, chase, apple
+* Import csv into individual tables as staging tables
+  While importing, the first data row # must match the header #, provide dummy data to fix this.
+* merge them into table transactions
+insert into transactions
+(date, description, debit, credit, card_member, card_type)
+-- select STR_TO_DATE(date, '%m/%d/%Y'), description, if(amount>0, amount, 0) debit, if(amount<0, amount, 0) credit, `card member` card_member, 'AMEX' card_type from 2025_amex;
+-- select STR_TO_DATE(date, '%m/%d/%Y'), description, if(debit='', 0, debit), if(credit='',0,credit), '', 'city_double_cash' from 2025_city;
+-- select STR_TO_DATE(date, '%m/%d/%Y'), description, if(debit='', 0, debit), if(credit='',0,credit), `member name`, 'city_costco' from 2025_costco;
+-- select STR_TO_DATE(`Transaction Date`, '%m/%d/%Y'), description, if(amount>0, amount, 0) debit, if(amount<0, amount, 0) credit, '', 'chase' card_type from 2025_chase;
+select STR_TO_DATE(`Transaction Date`, '%m/%d/%Y'), description, if(`amount (USD)`>0, `amount (USD)`, 0) debit, if(`amount (USD)`<0, `amount (USD)`, 0) credit, `Purchased By`, 'apple' card_type from 2025_apple;
+* Drop staging tables
+
+// insert sql for bank account
+// bank account uses negative as spending and positive as income.
+// transfer out as negative and in as positive
+// while the Home Ledger record both spending and incoming as positive and distincted by type as 'expense' or 'income'
+insert into transactions (date, description, type, amount, source, note)
+select STR_TO_DATE(`posting Date`, '%m/%d/%Y'), description, 
+if(details='debit', 'expense', 'income'),
+if (amount>0, amount, -amount), 'chase checking', type from 2025_chase_chk;
+
+

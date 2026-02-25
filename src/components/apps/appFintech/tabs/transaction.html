@@ -1,0 +1,63 @@
+<div class="container">
+    <p class="tab-title">Transactions</p>
+    <select id="selOptType" required>
+        <option value="">-- Manage options --</option>
+    </select>
+    <div id="divOptType" class="hidden container" style="background-color: rgb(209, 227, 227);">
+        <div id="divCatMgr" class="hidden">
+            <select id="selCategoryMgr" required>
+                <option>-- Select category --</option>
+            </select>
+            <input id="txtCatMgr" type="text" />
+            <button id='btnAddUpdCat'>Add/Update Category</button>
+            <select id="selSubcategoryMgr" required>
+                <option>-- Select subcategory --</option>
+            </select>
+            <input id="txtSubcatMgr" type="text" />
+            <button id='btnAddUpdSubcat'>Add/Update Subcategory</button>
+        </div>
+        <div id="divTripMgr" class="hidden">
+
+        </div>
+    </div>
+
+    <div id="divFilter">
+        <label>Filter: </label>
+        <select id="selTrip" required>
+            <option>-- Select trip --</option>
+        </select>
+        <span> | </span>
+        <select id="selType" required>
+            <option value="">-- Select type --</option>
+        </select>
+        <select id="selSource" required>
+            <option value="">-- Select source--</option>
+        </select>
+        <span> ==> </span>
+        <select id="selCategory" required>
+            <option>-- Select category --</option>
+        </select>
+        <select id="selSubcategory" required>
+            <option>-- Select subcategory --</option>
+        </select>
+        <span> | </span>
+        <input id="txtDesc" type="text" placeholder="type description to filter" />
+        <button id="btnRefreshTran">Refresh</button>
+        <button id="btnSummary">Summary</button>
+    </div>
+
+    <div id="divUpdateTran">
+        <label>Batch Update:</label>
+        <select id="selCategoryUpd" required>
+            <option>-- Select category --</option>
+        </select>
+        <select id="selSubcategoryUpd" required>
+            <option>-- Select subcategory --</option>
+        </select>
+        <button id="btnUpdCatSubcat">Update</button>
+        <span>update displayed trasactions with category/subcategory</span>
+    </div>
+
+    <button id="btnAddTran">Add Transaction</button>
+    <div id="divTransaction" class="container hiddens"></div>
+</div>
