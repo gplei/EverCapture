@@ -68,14 +68,18 @@ declare global {
         delCrumb: (id: number) => void;
     }
 }
-export const compRoot = '';
+export const compRoot = import.meta.env.BASE_URL;
 export const loadComponent = async (containerId: string, url: string, init?: () => void): Promise<void> => {
     try {
-        const response = await fetch(`${compRoot}/${url}`);
+        const normalizedUrl = url
+            .replace(/^\/+/, "")
+            .replace(/^Components\//i, "components/");
+        const response = await fetch(`${compRoot}${normalizedUrl}`);
         const html = await response.text();
 
         const container = document.getElementById(containerId);
         if (!container) return;
+// alert(`${compRoot}/${url}`);
 
         container.innerHTML = html;
 
@@ -105,12 +109,12 @@ export const loadComponent = async (containerId: string, url: string, init?: () 
 export const loadComponents = async (): Promise<void> => {
     await loadComponent(
         "userPage-placeholder",
-        `src/Components/common/${GlobalStore.userId ? "member" : "user"}.html`
+        `components/common/${GlobalStore.userId ? "member" : "user"}.html`
     );
-    await loadComponent("header-placeholder", `src/Components/common/header.html`, InitRegistry.initHeader);
-    await loadComponent("footer-placeholder", `src/Components/common/footer.html`);
+    await loadComponent("header-placeholder", `components/common/header.html`, InitRegistry.initHeader);
+    await loadComponent("footer-placeholder", `components/common/footer.html`);
     if (GlobalStore.userId) {
-        await loadComponent("quick-link-placeholder", `src/Components/common/side.html`, InitRegistry.initSidePanel);
+        await loadComponent("quick-link-placeholder", `components/common/side.html`, InitRegistry.initSidePanel);
     }
 };
 

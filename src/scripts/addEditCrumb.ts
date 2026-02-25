@@ -24,10 +24,10 @@ export const initAddEditCrumb = async (crumbId?: number) => {
         DataProvider.redirectPage('/');
     }
     await CommonUtil.loadComponents(); // pageLayout, header and footer
-    await CommonUtil.loadComponent("main-placeholder", "src/Components/addEditCrumb.html");
-    await CommonUtil.loadComponent('editor', 'src/Components/editor.html');
-    await CommonUtil.loadComponent('imgPopup-placeholder', 'src/Components/popup/imagePopup.html');
-    await CommonUtil.loadComponent('addImgPopup-placeholder', 'src/Components/popup/addImgPopup.html');
+    await CommonUtil.loadComponent("main-placeholder", "components/addEditCrumb.html");
+    await CommonUtil.loadComponent('editor', 'components/editor.html');
+    await CommonUtil.loadComponent('imgPopup-placeholder', 'components/popup/imagePopup.html');
+    await CommonUtil.loadComponent('addImgPopup-placeholder', 'components/popup/addImgPopup.html');
 
     CommonUtil.baseOnLoad();
 

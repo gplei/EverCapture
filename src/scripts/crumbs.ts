@@ -20,8 +20,8 @@ window.onload = async () => {
 
     const userId = CommonUtil.GlobalStore.userId;
     await CommonUtil.loadComponents();
-    await CommonUtil.loadComponent("main-placeholder", "src/Components/crumbs.html");
-    await CommonUtil.loadComponent('imgPopup-placeholder', 'src/Components/popup/imagePopup.html');
+    await CommonUtil.loadComponent("main-placeholder", "components/crumbs.html");
+    await CommonUtil.loadComponent('imgPopup-placeholder', 'components/popup/imagePopup.html');
     CommonUtil.baseOnLoad();
 
     initEventHandler();
@@ -105,7 +105,7 @@ const createCrumbElem = async (row: CommonUtil.Crumb) => {
 
     // right elements including pin, edit, del and showHide
     const pin = `<a class=${row.pin ? 'pin' : 'unpin'} id='btnPin${rowId}' onclick=window.togglePin(${rowId})></a>`;
-    const edit = `<a class='edit' href='${CommonUtil.compRoot}/pages/addeditcrumb.html?id=${rowId}'></a>`;
+    const edit = `<a class='edit' href='/pages/addeditcrumb.html?id=${rowId}'></a>`;
     const del = `<a class='delete' id='btnDel${rowId}' onclick=window.delCrumb(${rowId})></a>`;
     const showHide = `<a class='up' id='btnShowHide${rowId}' onclick=window.showHideBlock(${rowId})></a>`;
     const elemRight = `<div id='r${rowId}' class="hidden"> <span class='lbl-title'>${pin} ${edit} ${del}&nbsp;&nbsp;</span> ${showHide}</div>`;

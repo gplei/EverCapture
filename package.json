@@ -12,7 +12,7 @@
         "startS": "node ./server/server.js",
         "start": "caffeinate -s node ./server/server.js",
         "build-css": "cd public && npx sass scss:css",
-        "build-app-css": "cd Components/apps/appCommon && npx sass scss:css",
+        "build-app-css": "cd public/apps/appCommon && npx sass scss:css",
         "init-db": "if [ ! -f ./server/db/evercapture.db ]; then sqlite3 ./server/db/evercapture.db < ./server/db/sqlite_schema.sql; fi",
         "build-all-css": "npm run build-css && npm run build-app-css",
         "postinstall_": "npm run build-all-css && npm run init-db"

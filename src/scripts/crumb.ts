@@ -22,9 +22,9 @@ window.onload = async () => {
     }
 
     await CommonUtil.loadComponents();
-    await CommonUtil.loadComponent('main-placeholder', 'src/Components/crumb.html')
-    await CommonUtil.loadComponent('imgPopup-placeholder', 'src/Components/popup/imagePopup.html');
-    // await CommonUtil.loadComponent('addImgPopup-placeholder', 'src/Components/popup/addImgPopup.html');
+    await CommonUtil.loadComponent('main-placeholder', 'components/crumb.html')
+    await CommonUtil.loadComponent('imgPopup-placeholder', 'components/popup/imagePopup.html');
+    // await CommonUtil.loadComponent('addImgPopup-placeholder', 'components/popup/addImgPopup.html');
 
     CommonUtil.baseOnLoad();
 

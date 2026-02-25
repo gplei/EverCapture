@@ -37,11 +37,11 @@ export function initTab(appName:string) {
 }
 
 function loadTabContent(appName:string, tabId:string) {
-    const tabPath = `/src/Components/apps/${appName}/tabs/${tabId}.html`;
+    const tabPath = `${import.meta.env.BASE_URL}components/apps/${appName}/tabs/${tabId}.html`;
     fetch(tabPath)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Failed to fetch ${tabPath}.html: ${response.statusText}`);
+                throw new Error(`Failed to fetch ${tabPath}: ${response.statusText}`);
             }
             return response.text();
         })

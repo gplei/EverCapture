@@ -12,9 +12,9 @@ window.onload = async () => {
 
     const a = CommonUtil.getQueryString('a');
     if (a === 'register') {
-        CommonUtil.loadComponent('main-placeholder', 'src/components/secure/register.html');
+        CommonUtil.loadComponent('main-placeholder', 'components/secure/register.html');
     } else if (a === 'reset') {
-        CommonUtil.loadComponent('main-placeholder', 'src/components/secure/reset.html');
+        CommonUtil.loadComponent('main-placeholder', 'components/secure/reset.html');
     } else if (a === 'invalidLogin') {
         CommonUtil.setInnerHTML('errorMsg', `Invalid username or password. <a href="/login">Try again</a>`);
     } else if (a === 'resetU') {
@@ -22,6 +22,6 @@ window.onload = async () => {
     } else if (a === 'resetP') {
         CommonUtil.setInnerHTML('errorMsg', `The old and new password are not match. <a href="/?a=reset">Try again</a>`);
     } else {
-        CommonUtil.loadComponent('main-placeholder', 'src/components/secure/login.html');
+        CommonUtil.loadComponent('main-placeholder', 'components/secure/login.html');
     }
 }

@@ -19,8 +19,8 @@ window.onload = async () => {
         DataProvider.redirectPage('/');
     }
     await CommonUtil.loadComponents();
-    await CommonUtil.loadComponent('main-placeholder', 'src/Components/compact.html');
-    await CommonUtil.loadComponent('imgPopup-placeholder', 'src/Components/popup/imagePopup.html');
+    await CommonUtil.loadComponent('main-placeholder', 'components/compact.html');
+    await CommonUtil.loadComponent('imgPopup-placeholder', 'components/popup/imagePopup.html');
     CommonUtil.baseOnLoad();
 
     allTags = await DataProvider.getUserTags(CommonUtil.GlobalStore.userId);
