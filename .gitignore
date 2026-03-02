@@ -1,3 +1,6 @@
+.vite
+.env
+
 # Logs
 logs
 *.log
@@ -9,7 +12,6 @@ lerna-debug.log*
 
 node_modules
 dist
-.vite
 dist-ssr
 *.local
 

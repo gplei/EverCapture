@@ -34,6 +34,23 @@ export interface CrumbImageResult {
     media_dir: string;
     imgUrls: CrumbImage[];
 }
+export interface TagRow {
+    tag_name: string;
+}
+export interface ErrorResponse {
+    error?: string;
+    message?: string;
+}
+export interface SaveCrumbPayload {
+    id?: number;
+    userId?: number;
+    title?: string;
+    url?: string;
+    crumbDate?: string;
+    description?: string;
+    color?: string | null;
+    tags?: string[];
+}
 
 /**
  * Start code
@@ -75,6 +92,9 @@ export const loadComponent = async (containerId: string, url: string, init?: () 
             .replace(/^\/+/, "")
             .replace(/^Components\//i, "components/");
         const response = await fetch(`${compRoot}${normalizedUrl}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${normalizedUrl}: ${response.status} ${response.statusText}`);
+        }
         const html = await response.text();
 
         const container = document.getElementById(containerId);
@@ -510,14 +530,20 @@ export const mapArrayToOption = (
     }
     return opt;
 }
-export const mapObjectToOption = (
-    arr: any[],
-    valueName: string,
-    textContentName: string,
+export const mapObjectToOption = <T extends object>(
+    arr: T[],
+    valueName: keyof T | string,
+    textContentName: keyof T | string,
     optName?: string // a type, an account etc for -- select a type --
 ): Array<OptionData> => {
+    const getValue = (item: T, key: keyof T | string): unknown => {
+        return (item as Record<string, unknown>)[String(key)];
+    };
     const opt = arr.map(item => {
-        return { value: item[valueName], textContent: item[textContentName] };
+        return {
+            value: String(getValue(item, valueName) ?? ""),
+            textContent: String(getValue(item, textContentName) ?? "")
+        };
 
     });
     if (optName !== undefined) {

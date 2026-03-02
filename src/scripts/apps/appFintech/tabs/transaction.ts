@@ -53,6 +53,7 @@ const TRANSACTION_LINES_TABLE = 'TXN_TRANSACTION_LINES';
 const SPLIT_CATEGORY_IND = '<Split>'; // on this value, category has sub items in more details
 const UNCATEGORIZED = '<Uncategorized>';
 
+const arrPeriod = ['Year to date', '2025', '2024'];
 const dataType = ['expense', 'income', 'transfer'];
 
 let dataTransaction: Array<Transaction>;
@@ -81,7 +82,6 @@ const initData = async () => {
         data.sort((a: Source, b: Source) => a.name.localeCompare(b.name));
         return data;
     }
-
     const initAndConvertCategoryData = async () => {
         const buildCategoryTree = (data: Category[]): CommonUtil.OptionDataNode[] => {
             let roots: CommonUtil.OptionDataNode[] = [];
@@ -127,6 +127,7 @@ const fetchTransactions = async () => {
 }
 
 const initElement = async () => {
+    const selPeriod = CommonUtil.getSelectElement('selPeriod');
     const selTrip = CommonUtil.getSelectElement('selTrip');
     const selType = CommonUtil.getSelectElement('selType');
     const selSource = CommonUtil.getSelectElement('selSource');
@@ -134,7 +135,7 @@ const initElement = async () => {
     const selSubcategory = CommonUtil.getSelectElement('selSubcategory');
     const txtDesc = CommonUtil.getInputElement('txtDesc');
 
-    const initCategoryMgr = async () => {
+    const initCatTripMgr = async () => {
         const selOptType = CommonUtil.getSelectElement('selOptType');
         const divCatMgr = CommonUtil.getDivElement('divCatMgr');
         const divTripMgr = CommonUtil.getDivElement('divTripMgr');
@@ -234,41 +235,157 @@ const initElement = async () => {
         initCategoryMgr();
     }
 
-    const initTripTypeSourceFilter = () => {
-        CommonUtil.populateSelect(selTrip, CommonUtil.mapObjectToOption(dataTrip, 'id', 'name', 'trip'));
-        selTrip.addEventListener("change", async () => {
+    //#region reset filters
+    const resetPeriodFilter = () => {
+        selPeriod.selectedIndex = 0;
+    }
+    const resetTripFilter = () => {
+        selTrip.selectedIndex = 0;
+    }
+    const resetTypeSourceFilter = () => {
+        selType.selectedIndex = 0;
+        selSource.selectedIndex = 0;
+    }
+    const resetCatDescFilter = () => {
+        selCategory.selectedIndex = 0;
+        selSubcategory.selectedIndex = 0;
+        txtDesc.value = '';
+    }
+    //#endregion
+
+    const applyAndRender = () => {
+        // Base filters: period/trip/type/source
+        let data = dataTransaction.slice();
+
+        if (selPeriod.selectedIndex > 0) {
+            const selectedPeriod = selPeriod.selectedOptions[0].text;
+            const today = new Date();
+            const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+            let startDate = '';
+            let endDate = '';
+
+            if (selectedPeriod.toLowerCase() === 'year to date') {
+                const year = today.getFullYear();
+                startDate = `${year}-01-01`;
+                endDate = formatDate(today);
+            } else if (/^\d{4}$/.test(selectedPeriod)) {
+                startDate = `${selectedPeriod}-01-01`;
+                endDate = `${selectedPeriod}-12-31`;
+            }
+            if (startDate && endDate) {
+                data = filterTranByDates(data, startDate, endDate);
+            }
+        }
+
+        if (selTrip.selectedIndex > 0) {
+            data = data.filter(x => x.trip === selTrip.selectedOptions[0].text);
+        }
+        if (selType.selectedIndex > 0) {
+            data = data.filter(x => x.type === selType.value);
+        }
+        if (selSource.selectedIndex > 0) {
+            data = data.filter(x => x.source === selSource.selectedOptions[0].text);
+        }
+
+        // Keep this snapshot because category/subcategory filters are downstream of base filters.
+        filteredTranData = data.slice();
+
+        if (selCategory.selectedIndex > 0) {
+            const getCat = (d: Transaction) => (d.category ?? '').split('|')[0] ?? '';
+            if (selCategory.value === UNCATEGORIZED) {
+                data = data.filter((d) => (getCat(d) === '' || getCat(d) === '0'));
+            } else {
+                const selectedCategory = selCategory.selectedOptions[0].text;
+                data = data.filter((d) => getCat(d) === selectedCategory);
+            }
+        }
+        if (selSubcategory.selectedIndex > 0) {
+            const selectedSubcategory = selSubcategory.selectedOptions[0].text;
+            data = data.filter((d) => (((d.category ?? '').split('|')[1] ?? '') === selectedSubcategory));
+        }
+
+        const desc = txtDesc.value.trim().toLowerCase();
+        if (desc) {
+            data = data.filter(x => x.description?.toLowerCase().includes(desc));
+        }
+
+        renderTransactions(data);
+    }
+
+    //#region init and implement filters 
+    const initPeriodFilter = () => {
+        CommonUtil.populateSelect(selPeriod, CommonUtil.mapArrayToOption(arrPeriod));
+        selPeriod.addEventListener("change", async () => {
+            resetTripFilter();
             resetTypeSourceFilter();
             resetCatDescFilter();
-            filteredTranData = filterTranByTrip()
-            renderTransactions(filteredTranData);
+            applyAndRender();
         })
+    }
+    const initTripFilter = () => {
+        CommonUtil.populateSelect(selTrip, CommonUtil.mapObjectToOption(dataTrip, 'id', 'name', 'trip'));
+        selTrip.addEventListener("change", async () => {
+            resetPeriodFilter(); // only trip reset period
+            resetTypeSourceFilter();
+            resetCatDescFilter();
+            applyAndRender();
+        })
+    }
+    const initTypeSourceFilter = () => {
         CommonUtil.populateSelect(selType, CommonUtil.mapArrayToOption(dataType));
         selType.addEventListener("change", async () => {
-            resetTripFilter();
+            //            resetTripFilter();
             resetCatDescFilter();
-            filteredTranData = filterTranByTypeSource();
-            renderTransactions(filteredTranData);
+            applyAndRender();
         })
         CommonUtil.populateSelect(selSource, CommonUtil.mapObjectToOption(dataSource, 'id', 'name', 'source'));
         selSource.addEventListener("change", async () => {
-            resetTripFilter();
+            //          resetTripFilter();
             resetCatDescFilter();
-            filteredTranData = filterTranByTypeSource();
-            renderTransactions(filteredTranData);
+            applyAndRender();
         })
+    }
 
-        const resetTripFilter = () => {
-            selTrip.selectedIndex = 0;
-        }
-        const resetTypeSourceFilter = () => {
-            selType.selectedIndex = 0;
-            selSource.selectedIndex = 0;
-        }
-        const resetCatDescFilter = () => {
-            selCategory.selectedIndex = 0;
-            selSubcategory.selectedIndex = 0;
-            txtDesc.value = '';
-        }
+    const initCategoryFilter = () => {
+        initSelCatSubCat(selCategory, selSubcategory);
+        selCategory.options.add(new Option(UNCATEGORIZED, UNCATEGORIZED), 1);
+
+        selCategory.addEventListener("change", async () => {
+            applyAndRender();
+        })
+        selSubcategory.addEventListener("change", async () => {
+            applyAndRender();
+        })
+    }
+    const initDescFilter = () => {
+        txtDesc.addEventListener('blur', () => {
+            applyAndRender();
+        })
+    }
+    // set up option type mangement
+    // setup cal/subcal helper function
+    const initSelCatSubCat = (sel: HTMLSelectElement, selSub: HTMLSelectElement) => {
+        CommonUtil.populateSelect(sel, catSubcatTreeData);
+        sel.addEventListener('change', (e) => {
+            const selOpt = e.target as HTMLSelectElement;
+            const selVal = selOpt.value;
+            const subcatData = ((catSubcatTreeData as any[]).find(x => x.value === selVal));
+            if (subcatData) {
+                CommonUtil.populateSelect(selSub, subcatData.children);
+            }
+        })
+    }
+
+    const initFilters = () => {
+        initPeriodFilter();
+        initTripFilter();
+        initTypeSourceFilter();
+        initCategoryFilter();
+        initDescFilter();
+    }
+    //#endregion
+
+    const initRefreshSummary = () => {
 
         const btnRefreshTran = CommonUtil.getButtonElement('btnRefreshTran');
         btnRefreshTran.addEventListener("click", async () => {
@@ -276,7 +393,8 @@ const initElement = async () => {
             selType.selectedIndex = 0;
             selSource.selectedIndex = 0;
             resetCatDescFilter();
-            renderTransactions(await fetchTransactions());
+            dataTransaction = await fetchTransactions();
+            applyAndRender();
         })
         const btnSummary = CommonUtil.getButtonElement('btnSummary');
         btnSummary.addEventListener("click", async () => {
@@ -348,35 +466,24 @@ const initElement = async () => {
             divTransaction.append(catTable);
         })
     }
+    const initUpdateCategory = async () => {
+        const selCategoryUpd = CommonUtil.getSelectElement('selCategoryUpd');
+        const selSubcategoryUpd = CommonUtil.getSelectElement('selSubcategoryUpd');
+        const btnUpdCatSubcat = CommonUtil.getSelectElement('btnUpdCatSubcat');
 
-    const initCategoryFilter = () => {
-        initSelCatSubCat(selCategory, selSubcategory);
-        selCategory.options.add(new Option(UNCATEGORIZED, UNCATEGORIZED), 1);
-
-        selCategory.addEventListener("change", async () => {
-            const data = filterTranByCatSubcat();
-            renderTransactions(data);
-        })
-        selSubcategory.addEventListener("change", async () => {
-            // category is filtered, use the filtered data 
-            let data = filterTranByCatSubcat();
-            renderTransactions(data);
-        })
-    }
-    // set up option type mangement
-    // setup cal/subcal
-    const initSelCatSubCat = (sel: HTMLSelectElement, selSub: HTMLSelectElement) => {
-        CommonUtil.populateSelect(sel, catSubcatTreeData);
-        sel.addEventListener('change', (e) => {
-            const selOpt = e.target as HTMLSelectElement;
-            const selVal = selOpt.value;
-            const subcatData = ((catSubcatTreeData as any[]).find(x => x.value === selVal));
-            if (subcatData) {
-                CommonUtil.populateSelect(selSub, subcatData.children);
+        initSelCatSubCat(selCategoryUpd, selSubcategoryUpd);
+        btnUpdCatSubcat.addEventListener('click', async () => {
+            const catId = selCategoryUpd.value === '' ? '0' : selCategoryUpd.value;
+            let subcatId = selSubcategoryUpd.value === '' ? '0' : selSubcategoryUpd.value;
+            subcatId = catId === '0' ? '0' : subcatId;
+            const ids: string[] = renderedData.map(x => x.id);
+            if (confirm(`Are you sure you want to do the batch update for ${ids.length} transactions?`)) {
+                await DataProvider.fetchData(`updateTranCategory`, 'PUT', { catId, subcatId, ids });
             }
+            dataTransaction = await fetchTransactions();
+            applyAndRender();
         })
     }
-
     const initAddTran = () => {
         const btnAddTran = CommonUtil.getButtonElement('btnAddTran');
         btnAddTran.addEventListener("click", async () => {
@@ -399,86 +506,13 @@ const initElement = async () => {
         })
     }
 
-    const filterTranByTrip = () => {
-        let data = dataTransaction.slice(); debugger
-        data = data.filter(x => x.trip === selTrip.selectedOptions[0].text);
-        return data;
-    }
-    // filter data based on type, source and description
-    const filterTranByTypeSource = () => {
-        let data = dataTransaction.slice();
-        if (selType.selectedIndex > 0) {
-            data = data.filter(x => x.type === selType.value);
-        }
-        if (selSource.selectedIndex > 0) {
-            data = data.filter(x => x.source === selSource.selectedOptions[0].text);
-        }
-        return data;
-    }
-
-    const filterTranByCatSubcat = () => {
-        let data = filteredTranData.slice();
-
-        const filterData = (data: Transaction[], sel: HTMLSelectElement, isSubCat: boolean) => {
-            const getCal = (d: Transaction) => {
-                const calSubcal = d.category.split('|');
-                return isSubCat ? calSubcal[1] : calSubcal[0];
-            }
-
-            if (sel.selectedIndex === 0) {
-                return data;
-            } else if (!isSubCat && selCategory.selectedIndex === 1) {
-                return data.filter((d) => (getCal(d) === '' || getCal(d) === '0'));
-            } else {
-                return data.filter((d) => (getCal(d) === sel.selectedOptions[0].text));
-            }
-        }
-        data = filterData(data, selCategory, false);
-        return filterData(data, selSubcategory, true)
-    }
-    const filterTranByDesc = (data: Array<Transaction>) => {
-        const val = txtDesc.value;
-        if (!val) {
-            return data;
-        }
-        return data.filter(x => x.description?.toLowerCase().indexOf(val.toLowerCase()) !== -1);
-    }
-
-    const initUpdateCategory = async () => {
-        const selCategoryUpd = CommonUtil.getSelectElement('selCategoryUpd');
-        const selSubcategoryUpd = CommonUtil.getSelectElement('selSubcategoryUpd');
-        const btnUpdCatSubcat = CommonUtil.getSelectElement('btnUpdCatSubcat');
-
-        initSelCatSubCat(selCategoryUpd, selSubcategoryUpd);
-        txtDesc.addEventListener('blur', () => {
-            let filteredData = filterTranByTypeSource();
-            filteredData = filterTranByCatSubcat();
-            filteredData = filterTranByDesc(filteredData);
-            // dataTransaction = filteredData.filter(x => x.description?.toLowerCase().indexOf(txtDesc.value.toLowerCase()) !== -1);
-            renderTransactions(filteredData);
-        })
-        btnUpdCatSubcat.addEventListener('click', async () => {
-            const catId = selCategoryUpd.value === '' ? '0' : selCategoryUpd.value;
-            let subcatId = selSubcategoryUpd.value === '' ? '0' : selSubcategoryUpd.value;
-            subcatId = catId === '0' ? '0' : subcatId;
-            const ids: string[] = renderedData.map(x => x.id);
-            if (confirm(`Are you sure you want to do the batch update for ${ids.length} transactions?`)) {
-                await DataProvider.fetchData(`updateTranCategory`, 'PUT', { catId, subcatId, ids });
-            }
-            dataTransaction = await fetchTransactions();
-            let filteredData = filterTranByTypeSource();
-            // filteredData = filterTranByCatSubcat(filteredData, false);
-            filteredData = filterTranByDesc(filteredData);
-            renderTransactions(filteredData);
-        })
-    }
-    initCategoryMgr();
-    initTripTypeSourceFilter();
-    initCategoryFilter();
-
+    initCatTripMgr();
+    initFilters();
+    initRefreshSummary();
     initUpdateCategory();
     initAddTran();
-    renderTransactions(dataTransaction);
+
+    applyAndRender();
 }
 const renderTransactions = async (data: Array<Transaction>) => {
     renderedData = data;

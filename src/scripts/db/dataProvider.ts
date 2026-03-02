@@ -10,6 +10,18 @@ import * as CommonUtil from '../common.ts';
 // }
 
 const headers = { 'Content-Type': 'application/json' };
+
+interface CrumbTagRow {
+    id: number;
+    title: string;
+    url?: string;
+    date?: string;
+    description?: string;
+    pin?: boolean;
+    color?: string;
+    deleted?: boolean;
+    tag_name?: string;
+}
 export const apiBase =
     import.meta.env.MODE === 'development'
         ? '/api'
@@ -19,7 +31,7 @@ export const apiBase =
 export const mediaHost = `http://localhost:8000`;
 export const apiMediaBase = import.meta.env.MODE === 'development' ? '/apiMedia' : mediaHost;
 
-export const fetchData = async (path: string, method = "GET", body: any = null) => {
+export const fetchData = async (path: string, method = "GET", body: unknown = null): Promise<any> => {
     try {
         let options: RequestInit = { method, headers };// : { method, headers, body: JSON.stringify(body) };
 
@@ -33,7 +45,7 @@ export const fetchData = async (path: string, method = "GET", body: any = null) 
         if (response.redirected) {
             redirectPage(response.url);
         } else {
-            const parseResponseBody = async (): Promise<any> => {
+            const parseResponseBody = async (): Promise<unknown> => {
                 const rawText = await response.text();
                 if (!rawText.trim()) {
                     return null;
@@ -49,14 +61,15 @@ export const fetchData = async (path: string, method = "GET", body: any = null) 
                 return await parseResponseBody();
             } else {
                 let msg;
-                let result: any = null;
+                let result: unknown = null;
                 if (response.status === 404) {
                     // do not use 404 in server for custom error
                     msg = `Path: ${path}, Method: ${method}, Status: ${response.statusText}`;
                 } else {
                     const responseData = await parseResponseBody();
-                    if (responseData && typeof responseData === "object" && responseData.error) {
-                        msg = `${responseData.error} - ${responseData.message}`;
+                    if (responseData && typeof responseData === "object" && "error" in responseData) {
+                        const parsedError = responseData as CommonUtil.ErrorResponse;
+                        msg = `${parsedError.error} - ${parsedError.message}`;
                         result = responseData;
                     } else if (typeof responseData === "string" && responseData.trim()) {
                         msg = responseData;
@@ -64,14 +77,15 @@ export const fetchData = async (path: string, method = "GET", body: any = null) 
                         msg = `Path: ${path}, Method: ${method}, Status: ${response.status} ${response.statusText}`;
                     }
                 }
-                showMessage(msg);
+                // showMessage(msg);
+                throw new Error(msg);
                 return result;
             }
         }
     } catch (error) {
         const err = error as Error;
         showMessage(`${path} - ${err.message}`);
-        return null;
+        throw err;
     }
 }
 export const getSqlResult = (sql: string, method: string = 'GET') => {
@@ -87,19 +101,16 @@ export const getCrumbs = async (path: string) => {
 * @param {*} results 
 * @returns 
 */
-const convertCrumbTags = (results: any): CommonUtil.Crumb[] => {
-    let data: Array<CommonUtil.Crumb> = [];
-    if (!results) {
-        return data;
+const convertCrumbTags = (results: CrumbTagRow[] | null): CommonUtil.Crumb[] => {
+    if (!results || results.length === 0) {
+        return [];
     }
 
-    const seenKeys = new Set();
-
-    results.forEach((item: any) => {
-        if (!seenKeys.has(item.id)) {
-            // Add a new object for each unique key
-            // data.push({ key: item.key, class: item.class ? [item.class] : [] });
-            data.push({
+    const crumbMap = new Map<number, CommonUtil.Crumb>();
+    for (const item of results) {
+        let crumb = crumbMap.get(item.id);
+        if (!crumb) {
+            crumb = {
                 id: item.id,
                 title: item.title,
                 url: item.url,
@@ -108,18 +119,19 @@ const convertCrumbTags = (results: any): CommonUtil.Crumb[] => {
                 pin: item.pin,
                 color: item.color,
                 deleted: item.deleted,
-                tags: item.tag_name ? [item.tag_name] : []
-            })
-            seenKeys.add(item.id);
-        } else {
-            // Append class to the existing object
-            const existing = data.find(obj => obj.id === item.id);
-            if (item.tag_name) {
-                existing?.tags?.push(item.tag_name);
-            }
+                tags: item.tag_name ? [item.tag_name] : [],
+            };
+            crumbMap.set(item.id, crumb);
+            continue;
         }
-    });
-    return data;
+
+        if (item.tag_name) {
+            crumb.tags ??= [];
+            crumb.tags.push(item.tag_name);
+        }
+    }
+
+    return Array.from(crumbMap.values());
 }
 
 /**
@@ -167,16 +179,16 @@ export const getSearchCrumb = async (searchText: string) => {
 }
 export const getAllTags = async () => {
     const data = await fetchData(`allTag`);
-    return data.map((item: any) => item.tag_name);
+    return (data ?? []).map((item: CommonUtil.TagRow) => item.tag_name);
 }
 export const getUserTags = async (userId: number) => {
     const data = await fetchData(`tag/${userId}`);
-    return data.map((item: any) => item.tag_name);
+    return (data ?? []).map((item: CommonUtil.TagRow) => item.tag_name);
 }
-export const createCrumb = async (crumb: any) => {
+export const createCrumb = async (crumb: CommonUtil.SaveCrumbPayload) => {
     await fetchData('crumb', 'POST', crumb);
 }
-export const updateCrumb = async (crumb: any) => {
+export const updateCrumb = async (crumb: CommonUtil.SaveCrumbPayload) => {
     await fetchData('crumb', 'PUT', crumb);
 }
 export const updatePin = async (id: number, pin: number) => {
@@ -197,17 +209,28 @@ export const getCrumbImage = async (id: number) => {
 export const deleteCrumbImage = async (id: number) => {
     await fetchData(`image/${id}`, 'DELETE');
 }
-
-export const getSymbolQuotes = async (tickers: Array<string>) => {
-    const results = await fetchData(`price/${tickers.join(",")}`, 'GET');
-    return results;
-}
+/**
+ * fetch all real time prices and update symbol table
+ */
 export const updateAllPrices = async () => {
     await fetchData('price', 'PUT');
 }
+/**
+ * fetch real time price for symbol and update symbol table
+ * @param symbol 
+ * @returns 
+ */
 export const getCurrentPrice = async (symbol: string) => {
-    let result = await fetchData('price', 'PUT', { symbol });
-    return result.price;
+    const result = await fetchData('price', 'PUT', { symbol });
+    if (result && typeof result === 'object' && 'price' in result) {
+        return String(result.price ?? '');
+    }
+    if (result && typeof result === 'object' && 'message' in result) {
+        showMessage(`Failed to fetch current price for ${symbol}: ${String(result.message)}`);
+    } else {
+        showMessage(`Failed to fetch current price for ${symbol}`);
+    }
+    return '';
 }
 
 export const showMessage = (

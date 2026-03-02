@@ -15,7 +15,7 @@ const loadCrumbPinned = async () => {
     const userId = CommonUtil.GlobalStore.userId;
     if (!userId) return;
 
-    const data = await DataProvider.getPinnedCrumb(userId) as Array<any>;
+    const data = await DataProvider.getPinnedCrumb(userId);
     const pinnedCrumb = document.getElementById("pinnedCrumb") as HTMLDivElement;
     pinnedCrumb.innerHTML = data.length === 0?'' : `<div class="side-divider"><div class="group-name">Pinned crubms</div></div>`;
     let n = 0;
@@ -51,4 +51,3 @@ export const showHidePin = (id:number, pin: boolean) => {
 export const showHideSideBlock = (id?:number) => {
     CommonUtil.showHideBlock(id, 'showHideSide', 'sideBlock');
 }
-

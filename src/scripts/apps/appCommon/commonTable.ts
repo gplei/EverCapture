@@ -11,6 +11,7 @@ export interface ColumnSpec {
         value: any;
         action: (...args: any[]) => Promise<any>;
     };
+    enableColor?: boolean; // color to red if include '-'
     onSelChange?: (...args: any[]) => Promise<any>;
     // onSelChange?: (id:string, newValue:string|null, column:string) => any;
     onSelSubChange?: (...args: any[]) => Promise<any>;
@@ -54,6 +55,7 @@ export function createTable(data: Array<DataRow>, featureParam?: TableParam): HT
     }
     // check if empty table is shown
     if ((!data || data.length === 0) && featureParam?.table?.showEmptyTable !== true) {
+        CommonUtil.showMessage('No data to display');
         return table;
     }
 
@@ -74,12 +76,39 @@ export function createTable(data: Array<DataRow>, featureParam?: TableParam): HT
     return table;
 }
 const createRows = (tbody: HTMLTableSectionElement, data: DataRow[], featureParam?: TableParam, columnSpecMap: Map<string, ColumnSpec> = getColumnSpecMap(featureParam)) => {
+    attachEditableCellFocusoutHandler(tbody, featureParam?.table?.onchange);
     const fragment = document.createDocumentFragment();
     // A tray where you prepare multiple dishes in the kitchen
     // Then you carry the tray once to the table
     // Instead of walking back and forth 1000 times.
     data.forEach(row => fragment.appendChild(createRow(row, featureParam, columnSpecMap)));
     tbody.appendChild(fragment);
+}
+const attachEditableCellFocusoutHandler = (
+    tbody: HTMLTableSectionElement,
+    onchange?: (id: string, newValue: string, columnName: string) => Promise<any>
+) => {
+    if (!onchange || tbody.dataset.focusoutBound === '1') return;
+
+    tbody.addEventListener("focusout", (event) => {
+        const td = event.target as HTMLTableCellElement;
+        if (!td || td.tagName !== 'TD' || td.dataset.editable !== '1') return;
+
+        const rowId = td.dataset.rowId ?? '';
+        const colName = td.dataset.colName ?? '';
+        let newValue = td.textContent ?? "";
+
+        if (td.dataset.currency === '1') {
+            if (newValue.trim() !== '' && !isNaN(Number(newValue))) {
+                newValue = (0 + parseFloat(newValue.replace(/[^0-9.-]/g, ""))).toString();
+            } else {
+                newValue = '';
+            }
+        }
+        onchange(rowId, newValue, colName);
+    });
+
+    tbody.dataset.focusoutBound = '1';
 }
 const createHeader = (data: Array<DataRow>, featureParam?: TableParam) => {
     const ondelete = featureParam?.table?.ondelete ?? false;
@@ -132,15 +161,20 @@ const createRow = (row: DataRow, featureParam?: TableParam, columnSpecMap: Map<s
         const columnSpec = columnSpecMap.get(colName);
         const td = document.createElement('td');
 
-        let isTdEditable = isTableEditable;
-        if (colName === keyName ||
+        if (columnSpec?.enableColor) {
+            if (colVal?.indexOf('-') !== -1) {
+                td.style.color = "red";
+            }
+        }
+
+
+        const canEditCell = !(
+            colName === keyName ||
             columnSpec?.type === 'SELECT' ||
             columnSpec?.type === 'SELECT_SUB' ||
             isColumnDate(colName, columnSpec)
-        ) {
-            // key is not editable, or td contains other element, disable td edit
-            isTdEditable = false;
-        }
+        );
+        let isTdEditable = isTableEditable && canEditCell;
 
         if (columnSpec?.type === 'SELECT') {
             renderSelect(row.id, td, colVal, columnSpec);
@@ -153,26 +187,17 @@ const createRow = (row: DataRow, featureParam?: TableParam, columnSpecMap: Map<s
         } else {
             td.innerHTML = colVal;
         }
-        tr.appendChild(td);
 
-        if (isTdEditable) {
-            td.contentEditable = isTdEditable.toString();
-            if (!onchange) {
-                throw (new Error(`Editable cell need an event handler 'onchange'`));
+        td.contentEditable = isTdEditable.toString();
+        if (canEditCell && onchange) {
+            td.dataset.editable = '1';
+            td.dataset.rowId = String(row.id);
+            td.dataset.colName = colName;
+            if (isColumnCurrency(colName, columnSpec)) {
+                td.dataset.currency = '1';
             }
-            // attach generic cell listner
-            td.addEventListener("focusout", (event) => {
-                let newValue = (event.target as HTMLTableCellElement).textContent ?? "";
-                if (isColumnCurrency(colName, columnSpec)) { // more generic method parseCellValue if more type appear
-                    if (newValue.trim() !== '' && !isNaN(Number(newValue))) {
-                        newValue = (0 + parseFloat(newValue.replace(/[^0-9.-]/g, ""))).toString();
-                    } else {
-                        newValue = '';
-                    }
-                }
-                onchange(row.id, newValue, colName);
-            })
         }
+        tr.appendChild(td);
     });
 
     // add action cell for update and delete button
@@ -450,19 +475,37 @@ export const addTable = async (table: string, data?: Array<any>) => {
     return result.id;
 }
 export const getTable = async (table: string) => {
-    return await DataProvider.fetchData(`table/${table}`);
+    try {
+        return await DataProvider.fetchData(`table/${table}`);
+    } catch (error) {
+        const err = error as Error;
+        CommonUtil.showMessage(`Failed to get table '${table}': ${err.message}`);
+        throw err;
+    }
 }
 export const deleteTable = async (table: string, id: string) => {
-    await DataProvider.fetchData(`table/${id}/${table}`, 'delete');
+    try {
+        await DataProvider.fetchData(`table/${id}/${table}`, 'delete');
+    } catch (error) {
+        const err = error as Error;
+        CommonUtil.showMessage(`Failed to delete row ${id} from '${table}': ${err.message}`);
+        throw err;
+    }
 }
 export const updateTable = async (table: string, id: string, column: string, newValue: any, data?: Array<any>) => {
-    await DataProvider.fetchData(`table`, 'PUT', { id, table, column, newValue });
-    // mutate data to reflect change
-    if (data) {
-        const item = findItemById(id, data, 'id', 'FIND');
-        if (item.length > 0 && item[0][column] != newValue) {
-            item[0][column] = newValue;
+    try {
+        await DataProvider.fetchData(`table`, 'PUT', { id, table, column, newValue });
+        // mutate data to reflect change
+        if (data) {
+            const item = findItemById(id, data, 'id', 'FIND');
+            if (item.length > 0 && item[0][column] != newValue) {
+                item[0][column] = newValue;
+            }
         }
+    } catch (error) {
+        const err = error as Error;
+        CommonUtil.showMessage(`Failed to update '${table}.${column}' for row ${id}: ${err.message}`);
+        throw err;
     }
 }
 export const findItemById = (id: string, items: Array<any>, colName: string, type: 'FIND' | 'FILTER' = 'FILTER'): any[] => {

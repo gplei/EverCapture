@@ -1,5 +1,29 @@
 <div class="container">
     <p class="tab-title">Summary</p>
+    <select id="selManageType">
+        <option>-- Manage Account/Symbol --</option>
+    </select>
+    <div id="divMgr" class="hidden container" style="background-color: rgb(209, 227, 227);">
+        <div id="divAccountManager" class="hidden">
+            <select id="selAccountMgr">
+                <option value="">-- Select Account --</option>
+            </select>
+            <input type="text" id="txtAccountMgr" placeholder="Account name" />
+            <input type="text" id="txtInstituteMgr" placeholder="Institue" />
+            <button id="btnSaveAccount" type="button">Add / Update Account</button>
+            <span id="accountMgrMessage" class="lightLabel"></span>
+            <button id="btnAddBalance">Add Balance</button>
+            <span id="balanceMsg" class="lightLabel">Use the Add Symbol section above to add/update symbols.</span>
+            <div id="divAccountBalance"></div>
+        </div>
+
+        <div id="divSymbolMgr" class="hidden">
+            <button id="btnAddSymbol">Add Symbol</button>
+            <span class="lightLabel">Use the Add Symbol section above to add/update symbols.</span>
+            <div id="divSymbol"></div>
+        </div>
+    </div>
+
     <div>
         <div class="">
             <select id="selAssetType" required>
@@ -13,29 +37,8 @@
             <button id="btnUsePrice">Use price</button>
             <input type="text" id="txtSplitRatio" placeholder="split ratio (1:2 or 10:1)" />
             <button id="btnSplit" onclick="split()">Split</button>
-        </div>
-        <div id="divAddSymbol">
-            <form id="formAddSymbol">
-                <input type="text" id="txtSymbol" placeholder="Symbol (e.g., AAPL)" required>
-                <input type="text" id="txtCompanyNname" placeholder="Company Name" required>
-                <button id="btnAddSymbol" type="submit">Add Symbol</button>
-            </form>
-        </div>
-        <div id="divAddTrade" class="hidden">
-            <form id="formAddTrade">
-                <input type="date" id="tradeDate" required>
-                <select id="selTradeType">
-                    <option value="BUY">BUY</option>
-                    <option value="SELL">SELL</option>
-                </select>
-                <input type="number" id="share" placeholder="share" step="100" required>
-                <input type="number" id="price" placeholder="Price per Share" step="0.01" required>
-                <input type="number" id="lot" placeholder="Lot to Sell" step="1" required>
-                <select id="selAccount" required>
-                    <option value="">-- Select Account --</option>
-                </select>
-                <button id="btnAddTrade" type="submit">Add a Trade</button>
-            </form>
+            <button id="btnAddTrade" type="submit">Add a Trade</button>
+
         </div>
         <span id="message"></span>
         <div id="index" class="lightLabel"></div>
@@ -49,47 +52,9 @@
 <div id="manageTrade" class="hidden container">
     <p class="tab-title">Manage Trade</p>
 
-    <!-- Form to Add Account -->
     <div class="form-row">
-        <form id="accountForm">
-            <input type="text" id="account_name" placeholder="Account Name" required>
-            <input type="text" id="institute" placeholder="Institute (e.g., Fidelity)" required>
-            <button type="submit">Add Account</button>
-            <span id="accountMessage"></span>
-        </form>
-        <!-- Form to Add Stock Symbols -->
-        <!-- <form id="symbolForm">
-            <input type="text" id="symbol" placeholder="Symbol (e.g., AAPL)" required>
-            <input type="text" id="company_name" placeholder="Company Name" required>
-            <select type="text" id="selAddAssetType" placeholder="Assert Type" required>
-                <option value="">Select an asset type</option>
-            </select>
-            <button type="submit">Add Symbol</button>
-            <span id="symbolMessage"></span>
-        </form> -->
     </div>
 
-    <!-- Form to Record Stock Trades -->
-    <!-- <div>
-        <form id="tradeForm">
-            <input type="date" id="tradeDate" required>
-            <select id="selAccount" required>
-                <option value="">Select Account</option>
-            </select>
-            <select id="selTradeSymbol" required>
-                <option value="">Select Symbol</option>
-            </select>
-            <select id="selTradeType">
-                <option value="BUY">BUY</option>
-                <option value="SELL">SELL</option>
-            </select>
-            <input type="number" id="share" placeholder="share" required>
-            <input type="number" id="price" placeholder="Price per Share" step="0.0001" required>
-            <input type="number" id="lot" placeholder="Lot to Sell" step="1" required>
-            <button type="submit">Add a Trade</button>
-            <span id="tradeMessage"></span>
-        </form>
-    </div> -->
     <!-- All trades -->
     <div id="allTrade" class="table-container"></div>
 

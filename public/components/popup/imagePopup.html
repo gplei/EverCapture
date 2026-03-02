@@ -1,4 +1,4 @@
-<div class="imgPopup">
+<div class="imgPopup" id="imgPopup">
     <div class="controls">
         <span id="prev">&#9664;</span>
         <span id="next">&#9654;</span>
@@ -8,7 +8,7 @@
 </div>
 <script>
     let gallery = document.querySelectorAll('.image-gallery img');
-    const popup = document.querySelector('.imgPopup');
+    const popup = document.getElementById('imgPopup');
     const popupImg = document.getElementById('popup-img');
     const closeBtn = document.getElementById('close-popup');
     const prevBtn = document.getElementById('prev');
@@ -18,6 +18,8 @@
 
     function openPopup(index) {
         gallery = document.querySelectorAll('.image-gallery img');
+        if (!gallery || gallery.length === 0) return;
+        if (index < 0 || index >= gallery.length) return;
         currentIndex = index;
         popupImg.src = gallery[currentIndex].src;
         popupImg.title = gallery[currentIndex].id;
@@ -26,6 +28,7 @@
 
     function closePopup() {
         popup.classList.remove('active');
+        popupImg.removeAttribute('src');
     }
 
     function showNext() {
@@ -52,4 +55,12 @@
             closePopup();
         }
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closePopup();
+        }
+    });
+
+    // Defensive reset: if page/script reload leaves stale state, clear it.
+    closePopup();
 </script>

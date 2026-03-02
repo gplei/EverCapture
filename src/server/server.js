@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import express, { json, urlencoded } from 'express';

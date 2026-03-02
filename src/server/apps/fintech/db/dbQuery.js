@@ -87,6 +87,22 @@ export const addTrade = () => { return `INSERT INTO trade_log (trade_date, accou
 export const updatePrice = () => { return `UPDATE trade_symbol SET price = ?, previous_price=? WHERE symbol = ?`; }
 export const addAccount = () => { return `INSERT INTO trade_account (institute, account_name) VALUES (?, ?)`; }
 export const getAccount = () => { return `SELECT id, account_name, institute FROM trade_account`; }
+export const getAccountBalanceByDate = (date /* yyyy-mm-dd */) => { return `
+SELECT 
+    a.account_name,
+    a.institute,
+    b.total_balance,
+    b.date
+FROM trade_account a
+LEFT JOIN trade_account_balances b
+    ON b.account_id = a.id
+    AND b.date = (
+        SELECT MAX(bb.date)
+        FROM trade_account_balances bb
+        WHERE bb.account_id = a.id
+          AND bb.date <= ?
+    );
+`}
 
 // staging    
 export const getCitiTransaction = () => { return 'SELECT * FROM transaction_city'; }

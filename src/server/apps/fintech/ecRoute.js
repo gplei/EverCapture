@@ -21,14 +21,13 @@ router.put('/updateTranCategory', ecController.updateTranCategoryByIds);
 router.get('/trade', ecController.getTrade);
 // router.get('/symbol', ecController.getSymbol);
 // router.get('/tradeSymbol/:symbol', ecController.getTradeBySymbol);
-router.post('/symbol', ecController.addSymbol);
-router.post('/trade', ecController.addTrade);
+// router.post('/symbol', ecController.addSymbol);
+// router.post('/trade', ecController.addTrade);
+// router.post('/account', ecController.addAccount);
+// router.get('/account', ecController.getAccount);
 router.put('/price', ecController.updatePrice);
-router.post('/account', ecController.addAccount);
-router.get('/account', ecController.getAccount);
-router.get('/price/:symbols', ecController.getSymbolQuotes);
 // router.put('/trade', ecController.updateTrade);
-
+router.get('/acctBalance/:date', ecController.getAccountBalanceByDate);
 // table
 router.get('/table/:table', ecController.getTable);
 router.post('/table/:table', ecController.addTable);

@@ -1,5 +1,4 @@
 import * as dbExec from './db/dbExec.js';
-import yahooFinance from "yahoo-finance2";
 import { logger } from '../../logger.js';
 /**
  * In this controller module, process the fetch parameters and pass down to dbExec
@@ -9,6 +8,8 @@ import { logger } from '../../logger.js';
 const catchAsync = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
+const quoteCache = new Map();
+const QUOTE_CACHE_TTL_MS = 60 * 1000; // 1 min
 
 /********************************************************************************
  * transaction
@@ -133,75 +134,98 @@ export const addTrade = catchAsync(async (req, res) => {
     const result = await dbExec.addTrade(tradeDate, accountId, symbolId, tradeType, share, price, lot);
     res.json({ message: 'trade added', id: result.insertId });
 })
+/**
+ * get current market price and update table
+ * take only 1 or no symbol
+ */
 export const updatePrice = catchAsync(async (req, res) => {
     const { symbol } = req.body;
     if (!symbol) {
+        // no symbol is provided. fetch and update all prices
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
         const allSymbol = await dbExec.getTable('trade_symbol');
+        const failed = [];
         for (const item of allSymbol) {
-            const q = await getStockQuote(item.symbol);
-            await dbExec.updatePrice(item.symbol, q.c, q.pc);
+            try {
+                const q = await getStockQuote(item.symbol);
+                await dbExec.updatePrice(item.symbol, q.c, q.pc);
+            } catch (error) {
+                failed.push({ symbol: item.symbol, error: error.message });
+                logger.logError(`Failed to update ${item.symbol}: ${error.message}`);
+            }
             await delay(1500);
         }
-        res.json({ message: 'all prices are updated' });
+        res.json({
+            message: failed.length === 0 ? 'all prices are updated' : 'prices updated with some failures',
+            failed
+        });
     } else {
-        const q = await getStockQuote(symbol);
-        await dbExec.updatePrice(symbol, q.c, q.pc);
-        res.json({ price: q.c });
+        // fetch and update price for the symbol
+        logger.logDebug('update single price');
+        try {
+            const q = await getStockQuote(symbol);
+            await dbExec.updatePrice(symbol, q.c, q.pc);
+            res.json({ price: q.c, previousClose: q.pc, symbol: String(symbol).toUpperCase() });
+        } catch (error) {
+            logger.logError(`Failed to update ${symbol}: ${error.message}`);
+            res.status(502).json({
+                error: 'Quote Fetch Error',
+                message: error.message,
+                symbol: String(symbol).toUpperCase()
+            });
+        }
     }
 })
-// get quote and return
-export const getSymbolQuotes = catchAsync(async (req, res) => {
-    const symbols = req.params.symbols.split(',');
-    try {
-        const results = await Promise.all(
-            // symbols.map(ticker => yahooFinance.quote(ticker))
-            symbols.map(ticker => getStockQuote(ticker))
-        );
-        res.json(results);
-    } catch (err) {
-        logger.logError(err.message);
-        res.status(502).json({ message: 'Failed to fetch stock quotes' });
-    }
-})
-async function getStockPrice(ticker) {
-    const q = await getStockQuote(ticker);
-    if (q.c) {
-        return q.c;
-    }
-}
+/**
+ * this is the real deal to get stock quote one at a time
+ * @param {*} ticker 
+ * @returns 
+ */
 async function getStockQuote(ticker) {
+    const normalizedTicker = String(ticker).trim().toUpperCase();
+    const cached = quoteCache.get(normalizedTicker);
+    if (cached && Date.now() - cached.ts < QUOTE_CACHE_TTL_MS) {
+        return cached.quote;
+    }
+
     const API_KEY = process.env.FINNHUB_API_KEY;
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const saveToCache = (quote) => {
+        quoteCache.set(normalizedTicker, { quote, ts: Date.now() });
+        return quote;
+    };
     if (!API_KEY) {
-        throw new Error('FINNHUB_API_KEY is not configured');
+        throw new Error('FINNHUB_API_KEY is missing. Set it in your .env and restart server.');
     }
-    const url = `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${API_KEY}`;
 
-    try {
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    // the end point of finnhub can get only 1 quote at a time
+    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(normalizedTicker)}&token=${API_KEY}`;
+    logger.logDebug(url);
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            if (typeof data?.c === 'number') {
+                return saveToCache(data);
+            }
+            if (data?.c === 0 && data?.pc === 0) {
+                throw new Error('No quote data returned for symbol');
+            }
+            throw new Error('Unexpected Finnhub response format');
+        } catch (error) {
+            lastError = error;
+            logger.logError(`Finnhub quote failed for ${normalizedTicker} (attempt ${attempt + 1}/3): ${error.message}`);
+            if (attempt < 2) {
+                await sleep(700 * (attempt + 1));
+            }
         }
-
-        const data = await response.json();
-
-        // Finnhub returns 'c' for Current Price
-        if (data.c) {
-            // console.log(`--- ${ticker} ---`);
-            // console.log(`Current Price: $${data.c}`);
-            // console.log(`High of Day: $${data.h}`);
-            // console.log(`Low of Day: $${data.l}`);
-            // console.log(`Previous Close: $${data.pc}`);
-            return data;
-        } else {
-            throw new Error("No data found. Check your ticker symbol.");
-        }
-
-    } catch (error) {
-        throw new Error(`Failed to fetch stock data: ${error.message}`);
     }
+    throw new Error(`Finnhub quote failed for ${normalizedTicker}: ${lastError?.message ?? 'Unknown error'}`);
 }
 export const addAccount = catchAsync(async (req, res) => {
     const { institute, account_name } = req.body;
@@ -210,6 +234,11 @@ export const addAccount = catchAsync(async (req, res) => {
 })
 export const getAccount = catchAsync(async (req, res) => {
     const results = await dbExec.getAccount();
+    return res.json(results);
+})
+export const getAccountBalanceByDate = catchAsync(async (req, res) => {
+    const { date } = req.params;
+    const results = await dbExec.getAccountBalanceByDate(date);
     return res.json(results);
 })
 

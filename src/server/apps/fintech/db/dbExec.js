@@ -88,6 +88,9 @@ export const addAccount = async (institute, account_name) => {
 export const getAccount = async () => {
     return await execSql('getAccount', dbQuery.getAccount());
 }
+export const getAccountBalanceByDate = async (date) => {
+    return await execSql('getAccount', dbQuery.getAccountBalanceByDate(), [date]);
+}
 
 /**
  * generic table

@@ -1,5 +1,6 @@
 .imgPopup {
     display: none;
+    visibility: hidden;
     position: fixed;
     top: 0;
     left: 0;
@@ -14,6 +15,7 @@
 
 .imgPopup.active {
     display: flex;
+    visibility: visible;
     pointer-events: auto;
 }
 

@@ -2,13 +2,13 @@ import * as DataProvider from '../../../db/dataProvider';
 import * as CommonUtil from '../../../common';
 import * as AppCommonTable from '../../appCommon/commonTable';
 
-// interface from tables
+//#region interface
 interface Trade {
-    symbol: string;
+    id: string;
+    account_id: string;
+    symbol_id: string;
     trade_date: string;
     trade_type: 'BUY' | 'SELL';
-    account_id: number;
-    symbol_id: number;
     share: number;
     price: number;
     lot: number;
@@ -16,20 +16,28 @@ interface Trade {
     comment?: string
 }
 interface Symbol {
-    id: number;
-    asset_type: "Stock" | "Fund" | "ETF" | "Bond";
+    id: string;
+    symbol: string;
     company_name: string;
     price: number;
     previous_price: number;
-    current_price: number;
-    previous_close_price: number;
-    symbol: string;
+    asset_type: "Stock" | "Fund" | "ETF" | "Bond";
 }
 interface Account {
     id: string;
     account_name: string;
     institute: string;
 }
+interface AccountBalance {
+    id: string;
+    account_id: string;
+    total_balance?: number;
+    market_value?: number;
+    cash_balance?: number;
+    cost_basis?: number;
+    notes?: string;
+}
+
 /** 
  *  unrealized summary for all symbols 
 */
@@ -58,28 +66,36 @@ interface SingleSummary {
     realized: GainLossSummary;
     total: GainLossSummary;
 }
-// tables
+//#endregion
+//#region table and data
 const ACCOUNT_TABLE = 'trade_account';
+const ACCOUNT_BALANCE_TABLE = 'trade_account_balances';
 const SYMBOL_TABLE = 'trade_symbol';
 const TRADE_TABLE = 'trade_log';
 
 // data from table
-let accountData: Account[];
-let symbolData: Symbol[];
-let tradeData: Trade[];
-
+let dataAccount: Account[];
+let dataSymbol: Symbol[];
+let dataTrade: Trade[];
+let dataAcctBalance: AccountBalance[];
+//#endregion
+let acctBalSumData: any;
 let selectedSymbol: Symbol | undefined; // selected symbol object corresponding with dropdown
 
 export const initStock = async () => {
-    await loadAssetType('Stock');
-    await loadStockSymbol();
-    await loadAccount();
-    await loadTrade();
-    CommonUtil.getInputElement('tradeDate').value = (new Date()).toISOString().split('T')[0];
-    createAllSummary(symbolData);
-    initEventHandler();
+    await initData();
+    initElement();
 }
-const loadAssetType = async (selectedValue?: string) => {
+const initData = async () => {
+    const defaultSymbolType = 'Stock';
+    await fetchAndRenderAssetType(defaultSymbolType);
+    await fetchAccount();
+    await fetchSymbol();
+    await fetchTrade();
+    await fetchAccountBalance();
+}
+//#region fetch
+const fetchAndRenderAssetType = async (selectedValue?: string) => {
     const assetType = await AppCommonTable.getEnumValue('fintech', 'trade_symbol', 'asset_type');
     const selAssetType = CommonUtil.getSelectElement('selAssetType');
     CommonUtil.populateSelect(selAssetType, CommonUtil.mapArrayToOption(assetType));
@@ -87,209 +103,299 @@ const loadAssetType = async (selectedValue?: string) => {
         selAssetType.value = selectedValue;
     }
 }
-const loadStockSymbol = async (selectedValue?: string) => {
+const fetchAccount = async () => {
+    dataAccount = await AppCommonTable.getTable(ACCOUNT_TABLE);
+}
+const fetchSymbol = async () => {
+    dataSymbol = await AppCommonTable.getTable(SYMBOL_TABLE);
+}
+const fetchTrade = async () => {
+    dataTrade = await AppCommonTable.getTable(TRADE_TABLE);
+}
+const fetchAccountBalance = async () => {
+    dataAcctBalance = await AppCommonTable.getTable(ACCOUNT_BALANCE_TABLE);
+    acctBalSumData = await DataProvider.fetchData(`acctBalance/2026-02-27`);
+}
+//#endregion
+const initElement = () => {
     const selSymbol = CommonUtil.getSelectElement('selSymbol');
-    const allSymbolData = await AppCommonTable.getTable(SYMBOL_TABLE);
-    symbolData = allSymbolData.filter((s: Symbol) => s.asset_type === 'Stock');
-    // const symbols = symbolData.map(symbol => { return symbol.symbol }); 
-    // const symbolPrices: CurrentSymbolPrice[] = await DataProvider.getSymbolQuotes(symbols);
-    symbolData.forEach((symbol) => {
-        symbol.current_price = symbol.price;
-        symbol.previous_close_price = symbol.previous_price;
-    });
-    CommonUtil.populateSelect(selSymbol, CommonUtil.mapObjectToOption(symbolData as any, 'id', 'symbol'));
-    if (selectedValue !== undefined) {
-        selSymbol.value = selectedValue;
+    const renderSelSymbol = (selSymbol: HTMLSelectElement) => {
+        CommonUtil.populateSelect(selSymbol, CommonUtil.mapObjectToOption(dataSymbol as any, 'id', 'symbol'));
     }
-}
-// const displayIndex = async () => {
-//     const indexEl = document.getElementById('index')!;
-//     indexEl.innerHTML = "";
-//     const tickers = ["SPY", "DIA", "QQQ"];// ["^GSPC", "^DJI", "^IXIC"];
-//     const r = await DataProvider.getSymbolQuotes(tickers);
-//     let i = 0;
-//     r.forEach((t: any) => {
-//         const symbol = tickers[i++];
-//         const yLnk = getYahooLink(symbol);
-//         const priceSpan = `<span><b>$${t.c}</b></span>`
-//         const diff = Number((t.c - t.pc).toFixed(2));
-//         const pct = convertPercent(t.pc, diff);
-//         const pctSpan = `(<span style="color:${diff >= 0 ? 'green' : 'red'};">${pct}</span>)`
-//         const diffSpan = `<span style="color:${diff >= 0 ? 'green' : 'red'};">$${diff}</span>`
-//         indexEl.innerHTML += `<p>${symbol}(${yLnk}): ${priceSpan} ${diffSpan} ${pctSpan}</p>`;
-//     });
-// }
-const getYahooLink = (symbol: string) => {
-    return `<a class="inlineButton" href="https://finance.yahoo.com/quote/${symbol}/" target="_blank">${symbol}</a>`;
-}
-const loadAccount = async () => {
-    const selAccount = CommonUtil.getSelectElement('selAccount');
-    // selAccount.options.length = 1; // keep the place holder
-    accountData = await AppCommonTable.getTable(ACCOUNT_TABLE);
-    CommonUtil.populateSelect(selAccount, CommonUtil.mapObjectToOption(accountData as any, 'id', 'account_name'));
-}
-const loadTrade = async () => {
-    const allTrade = CommonUtil.getElement('allTrade')!;
-    allTrade.innerHTML = "";
-    if (!tradeData) {
-        tradeData = await DataProvider.fetchData('trade');
-    }
-    displayTradeTable(tradeData);
-}
-const initEventHandler = () => {
-    const assetTypeChanged = () => {
+
+    const initAccountSymbolManager = () => {
+        const initManageType = () => {
+            const selManageType = CommonUtil.getSelectElement('selManageType');
+            CommonUtil.populateSelect(selManageType, CommonUtil.mapArrayToOption(['Account', 'Symbol']));
+            selManageType.addEventListener('change', () => {
+                // show/hide the whole divMgr
+                CommonUtil.showHideContainer('divMgr', selManageType.selectedIndex === 0 ? true : false);
+                if (selManageType.selectedIndex === 0) return;
+
+                const mode = selManageType.value;
+                const isAccount = mode === 'Account';
+                const isSymbol = mode === 'Symbol';
+
+                CommonUtil.showHideContainer('divAccountManager', !isAccount);
+                CommonUtil.showHideContainer('divSymbolMgr', !isSymbol);
+            });
+        }
+        const initAcctMgr = () => {
+            const selAccountMgr = CommonUtil.getSelectElement('selAccountMgr');
+            const txtAccountMgr = CommonUtil.getInputElement('txtAccountMgr');
+            const txtInstituteMgr = CommonUtil.getInputElement('txtInstituteMgr');
+            const btnSaveAccount = CommonUtil.getButtonElement('btnSaveAccount');
+            const accountMgrMessage = CommonUtil.getSpanElement('accountMgrMessage');
+            const balanceMsg = CommonUtil.getSpanElement('balanceMsg');
+            const divAccountBalance = CommonUtil.getDivElement('divAccountBalance');
+
+            const renderAccountBalance = async (accountId: string) => {
+                divAccountBalance.innerHTML = "";
+
+                let dataBalance = dataAcctBalance.filter((x: any) => x.account_id?.toString() === accountId);
+                if (!dataBalance || dataBalance.length === 0) {
+                    divAccountBalance.innerHTML = "<span class='lightLabel'>No account balance data.</span>";
+                    return;
+                }
+
+                const updateBalance = async (id: string, newValue: string, columnName: string) => {
+                    await AppCommonTable.updateTable(ACCOUNT_BALANCE_TABLE, id, columnName, newValue)
+                }
+
+                divAccountBalance.appendChild(
+                    AppCommonTable.createTable(dataBalance, {
+                        table: {
+                            onchange: updateBalance
+                        },
+                        column: [
+                            { columnName: 'date', type: 'DATE' },
+                            { columnName: 'total_balance', type: 'CURRENCY' },
+                            { columnName: 'cost_basis', type: 'CURRENCY' },
+                            { columnName: 'market_value', type: 'CURRENCY' },
+                            { columnName: 'gain_loss', type: 'CURRENCY' },
+                        ]
+                    })
+                );
+            };
+            const renderBalanceSummary = () => {
+                divAccountBalance.innerHTML = '';
+                divAccountBalance.appendChild(AppCommonTable.createTable(acctBalSumData));
+                const total = acctBalSumData.reduce(
+                    (sum: number, acc: any) => sum + (acc.total_balance ?? 0),
+                    0
+                );
+                balanceMsg.textContent = `Total balance: ${CommonUtil.usdFormatter.format(total)}`;
+            }
+
+            const renderSelAccountMgr = () => {
+                CommonUtil.populateSelect(selAccountMgr, CommonUtil.mapObjectToOption(dataAccount as any, 'id', 'account_name'));
+            }
+
+            renderSelAccountMgr();
+            selAccountMgr.addEventListener('change', async () => {
+                if (selAccountMgr.selectedIndex === 0) {
+                    renderBalanceSummary();
+                } else {
+                    balanceMsg.textContent = '';
+                    const selected = selAccountMgr.selectedOptions[0]?.textContent ?? '';
+                    txtAccountMgr.value = selAccountMgr.selectedIndex > 0 ? selected : '';
+                    txtInstituteMgr.value = dataAccount.find((x: any) => x.id?.toString() === selAccountMgr.value)?.institute ?? '';
+                    await renderAccountBalance(selAccountMgr.value);
+                }
+            });
+
+            btnSaveAccount.addEventListener('click', async () => {
+                const accountName = txtAccountMgr.value.trim();
+                const institute = txtInstituteMgr.value.trim();
+                if (!accountName || !institute) {
+                    if (accountMgrMessage) accountMgrMessage.textContent = 'Please enter account name/institue';
+                    return;
+                }
+
+                if (selAccountMgr.selectedIndex === 0) {
+                    await DataProvider.fetchData('account', 'POST', { account_name: accountName, institute });
+                } else {
+                    if (confirm(`Are you sure you want to update account_name to '${accountName}' and institue to '${institute}'?`)) {
+                        await AppCommonTable.updateTable(ACCOUNT_TABLE, selAccountMgr.value, 'account_name', accountName);
+                        await AppCommonTable.updateTable(ACCOUNT_TABLE, selAccountMgr.value, 'institute', institute);
+                    }
+                }
+                await fetchAccount();
+                renderSelAccountMgr();
+
+                const match = dataAccount.find(a => a.account_name === accountName);
+                selAccountMgr.value = match?.id ?? '';
+                if (accountMgrMessage) accountMgrMessage.textContent = 'Saved';
+                await renderAccountBalance(selAccountMgr.value);
+            });
+
+            const btnAddBalance = CommonUtil.getButtonElement('btnAddBalance');
+            const addAccountBalance = async () => {
+                if (selAccountMgr.selectedIndex === 0) {
+                    CommonUtil.showMessage('Select an account before add a record.');
+                    return;
+                }
+                const id = await AppCommonTable.addTable(ACCOUNT_BALANCE_TABLE);
+                AppCommonTable.updateTable(ACCOUNT_BALANCE_TABLE, id, 'account_id', selAccountMgr.value);
+                await fetchAccountBalance();
+                renderAccountBalance(selAccountMgr.value);
+            }
+            btnAddBalance.addEventListener('click', addAccountBalance);
+            renderBalanceSummary();
+        }
+        const initSymbolMgr = () => {
+            const btnAddSymbol = CommonUtil.getButtonElement('btnAddSymbol');
+            const divSymbol = CommonUtil.getDivElement('divSymbol');
+            btnAddSymbol.addEventListener('click', async () => {
+                await AppCommonTable.addTable(SYMBOL_TABLE);
+            });
+
+            const RenderSymbolMgr = () => {
+                const updateSymbol = async (id: string, newValue: string, column: string) => {
+                    await AppCommonTable.updateTable(SYMBOL_TABLE, id, column, newValue);
+                    await fetchSymbol();
+                    RenderSymbolMgr()
+                }
+                divSymbol.appendChild(AppCommonTable.createTable(dataSymbol,
+                    {
+                        table: {
+                            onchange: updateSymbol
+                        }
+                    }
+                ))
+            }
+            RenderSymbolMgr();
+        }
+
+        initManageType();
+        initAcctMgr();
+        initSymbolMgr();
+
         const selAssetType = CommonUtil.getSelectElement('selAssetType');
-        const assetSelected: Symbol[] = symbolData.filter(item => item.asset_type === selAssetType.value)
-        CommonUtil.populateSelect(CommonUtil.getSelectElement('selSymbol'), CommonUtil.mapObjectToOption(assetSelected as any, 'id', 'symbol'));
-        createAllSummary(symbolData);
-
-        CommonUtil.showHideContainer('divAddSymbol', selAssetType.selectedIndex === 0 ? true : false);
-        CommonUtil.showHideContainer('divAddTrade', true);
-    }
-    CommonUtil.getElement('selAssetType')?.addEventListener("change", async () => {
-        assetTypeChanged();
-    })
-    const symbolChanged = async () => {
-        const selSymbol = CommonUtil.getSelectElement('selSymbol');
-        if (selSymbol.selectedIndex === 0) {
-            CommonUtil.showHideContainer('btnUpdPrices', false);
-            createAllSummary(symbolData);
-        } else {
-            CommonUtil.showHideContainer('btnUpdPrices', true);
-            const currSymbol = selSymbol.selectedOptions[0].textContent!;
-            selectedSymbol = findSymbol(currSymbol);
-            // fetch current price and update symbol table
-            CommonUtil.getInputElement('txtCurrPrice').value = await DataProvider.getCurrentPrice(currSymbol);
-
-            const yLink = CommonUtil.getAnchorElement('yLink');
-            yLink.href = `https://finance.yahoo.com/quote/${currSymbol}/`;
-            yLink.innerHTML = currSymbol;
-
-            if (selectedSymbol)
-                createSingleSummary(selectedSymbol);
+        const assetTypeChanged = () => { // need more work if there are multiple assets types
+            const assetSelected: Symbol[] = dataSymbol.filter(item => item.asset_type === selAssetType.value)
+            CommonUtil.populateSelect(selSymbol, CommonUtil.mapObjectToOption(assetSelected as any, 'id', 'symbol'));
+            createAllSummary();
         }
-        CommonUtil.showHideContainer('divAddTrade', selSymbol.selectedIndex === 0 ? true : false);
-    }
-    document.getElementById('selSymbol')?.addEventListener("change", async () => {
-        await symbolChanged()
-    })
-    document.getElementById('btnUsePrice')?.addEventListener("click", () => {
-        const selSymbol = CommonUtil.getSelectElement('selSymbol');
-        const txtCurrPrice = CommonUtil.getInputElement('txtCurrPrice');
-        if (selSymbol.selectedIndex === 0) {
-            createAllSummary(symbolData);
-        } else {
-            if (selectedSymbol) {
-                selectedSymbol.current_price = Number(txtCurrPrice.value) * 1
-                createSingleSummary(selectedSymbol);
+        selAssetType.addEventListener("change", async () => {
+            assetTypeChanged();
+        })
+        const symbolChanged = async () => {
+            if (selSymbol.selectedIndex === 0) {
+                CommonUtil.showHideContainer('btnUpdPrices', false);
+                createAllSummary();
+            } else {
+                CommonUtil.showHideContainer('btnUpdPrices', true);
+                const currSymbol = selSymbol.selectedOptions[0].textContent!;
+                selectedSymbol = dataSymbol.find(stock => stock.symbol === currSymbol);
+                // fetch current price and update symbol table
+                CommonUtil.getInputElement('txtCurrPrice').value = await DataProvider.getCurrentPrice(currSymbol);
+
+                const yLink = CommonUtil.getAnchorElement('yLink');
+                yLink.href = getYahooLink(currSymbol);
+                yLink.innerHTML = currSymbol;
+
+                if (selectedSymbol) createSingleSummary(selectedSymbol);
             }
+            CommonUtil.showHideContainer('divAddTrade', selSymbol.selectedIndex === 0 ? true : false);
         }
-    })
-    document.getElementById('btnUpdPrices')?.addEventListener("click", async () => {
-        const selSymbol = CommonUtil.getSelectElement('selSymbol');
-        const txtCurrPrice = CommonUtil.getInputElement('txtCurrPrice');
-        
-        if (selSymbol.selectedIndex === 0) {
-            await DataProvider.updateAllPrices();
-await loadStockSymbol();
-            createAllSummary(symbolData);
-        } else {
-            if (selectedSymbol) {
-                selectedSymbol.current_price = Number(txtCurrPrice.value) * 1
-                createSingleSummary(selectedSymbol);
+        document.getElementById('selSymbol')?.addEventListener("change", async () => {
+            await symbolChanged()
+        })
+        const btnAddTrade = CommonUtil.getButtonElement('btnAddTrade');
+        btnAddTrade.addEventListener('click', async () => {
+
+            if (selSymbol.selectedIndex === 0) {
+                CommonUtil.showMessage('Select a symbol to add a trade');
+                return;
             }
-        }
-    })
-
-    document.getElementById("formAddSymbol")?.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        const symbol = CommonUtil.getInputElement("txtSymbol").value;
-        const company_name = CommonUtil.getInputElement("txtCompanyNname").value;
-        const asset_type = CommonUtil.getInputElement('selAssetType').value;
-        await DataProvider.fetchData('symbol', 'POST', { symbol, company_name, asset_type });
-        (event.target as HTMLFormElement)?.reset();
-        await loadStockSymbol(symbol);
-    });
-
-    document.getElementById("formAddTrade")?.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        const tradeDate = CommonUtil.getInputElement("tradeDate").value;
-        const tradeType = CommonUtil.getInputElement("selTradeType").value;
-        const symbolId = CommonUtil.getInputElement("selSymbol").value;
-        const share = CommonUtil.getInputElement("share").value;
-        const price = CommonUtil.getInputElement("price").value;
-        const lot = CommonUtil.getInputElement("lot").value;
-        const accountId = CommonUtil.getInputElement("selAccount").value;
-
-        DataProvider.fetchData('trade', 'POST', { tradeDate, accountId, symbolId, tradeType, share, price, lot });
-        // CommonUtil.getElement("message").innerText = result.message;
-        (event.target as HTMLFormElement)?.reset();
-        await loadTrade(); // refresh trade data
-        createSingleSummary(selectedSymbol)
-    });
-    document.getElementById("accountForm")?.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        const account_name = CommonUtil.getInputElement("account_name").value;
-        const institute = CommonUtil.getInputElement("institute").value;
-
-        const response = await fetch("/account", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ account_name, institute })
+            const id = await AppCommonTable.addTable(TRADE_TABLE);
+            await AppCommonTable.updateTable(TRADE_TABLE, id, 'symbol_id', selSymbol.selectedOptions[0].text);
+            await symbolChanged();
         });
+    };
+    const initTradeSummary = () => {
+        renderSelSymbol(selSymbol);
 
-        await loadAccount();
+        document.getElementById('btnUsePrice')?.addEventListener("click", () => {
+            const txtCurrPrice = CommonUtil.getInputElement('txtCurrPrice');
+            if (selSymbol.selectedIndex === 0) {
+                createAllSummary();
+            } else {
+                if (selectedSymbol) {
+                    selectedSymbol.price = Number(txtCurrPrice.value) * 1
+                    createSingleSummary(selectedSymbol);
+                }
+            }
+        })
+        const splitStock = () => {
+            const splitSpec = CommonUtil.getInputElement('txtSplitRatio').value.split(':');
+            const beforeShare = Number(splitSpec[0]);
+            const afterShare = Number(splitSpec[1]);
+            const spiltRatio = beforeShare / afterShare;
 
-        const result = await response.json();
-        document.getElementById("accountMessage")!.innerHTML = result.message;
-    });
+            for (let i = 0; i < remainingLots.length; i++) {
+                const { trade_date, account_id, symbol_id, share, price, lot } = remainingLots[i];
+                const tradeDate = new Date(trade_date).toISOString().split('T')[0];
+                let dummyTrade = {
+                    tradeDate,
+                    accountId: account_id,
+                    symbolId: symbol_id,
+                    tradeType: 'SELL',
+                    share,
+                    price,
+                    lot
+                };
+                DataProvider.fetchData('trade', 'POST', dummyTrade);
+                dummyTrade.tradeType = "BUY";
+                dummyTrade.share = share / spiltRatio;
+                dummyTrade.price = price * spiltRatio;
+                dummyTrade.lot += 100; // splitedd dummy trade
+                DataProvider.fetchData('trade', 'POST', dummyTrade);
+            }
+        }
+        document.getElementById('btnSplit')?.addEventListener("click", async () => {
+            splitStock();
+        })
+        document.getElementById('btnUpdPrices')?.addEventListener("click", async () => {
+            const txtCurrPrice = CommonUtil.getInputElement('txtCurrPrice');
+            if (selSymbol.selectedIndex === 0) {
+                await DataProvider.updateAllPrices();
+                DataProvider.showMessage("All quotes are updated");
+                await fetchSymbol();
+                renderSelSymbol(selSymbol);
+                createAllSummary();
+            } else {
+                if (selectedSymbol) {
+                    selectedSymbol.price = Number(txtCurrPrice.value) * 1
+                    createSingleSummary(selectedSymbol);
+                }
+            }
+        })
+        createAllSummary();
+    }
 
-    const btnToggleTrade = CommonUtil.getElement('btnToggleTrade');
-    btnToggleTrade.addEventListener("click", async () => {
-        await loadTrade();
-        CommonUtil.showHodeObject('Trade', btnToggleTrade, [CommonUtil.getElement('manageTrade')]);
+    // could be reomoved
+    CommonUtil.getElement('btnToggleTrade').addEventListener("click", async (e: Event) => {
+        const allTrade = CommonUtil.getDivElement('allTrade')!;
+        allTrade.innerHTML = "";
+        renderTradeTable(allTrade, dataTrade);
+        CommonUtil.showHodeObject('Trade', e.target as HTMLButtonElement, [CommonUtil.getElement('manageTrade')]);
     })
 
+    initAccountSymbolManager();
+    initTradeSummary();
 }
 
-const updateTrade = async (id: string, newValue: string, column: string) => {
-    await AppCommonTable.updateTable(TRADE_TABLE, id, column, newValue, tradeData);
-}
-const deleteTrade = async (id: string) => {
-    await AppCommonTable.deleteTable(TRADE_TABLE, id);
-}
-document.getElementById('btnSplit')?.addEventListener("click", async () => {
-    splitStock();
-})
-const splitStock = () => {
-    const splitSpec = CommonUtil.getInputElement('txtSplitRatio').value.split(':');
-    const beforeShare = Number(splitSpec[0]);
-    const afterShare = Number(splitSpec[1]);
-    const spiltRatio = beforeShare / afterShare;
-
-    for (let i = 0; i < remainingLots.length; i++) {
-        const { trade_date, account_id, symbol_id, share, price, lot } = remainingLots[i];
-        const tradeDate = new Date(trade_date).toISOString().split('T')[0];
-        let dummyTrade = {
-            tradeDate,
-            accountId: account_id,
-            symbolId: symbol_id,
-            tradeType: 'SELL',
-            share,
-            price,
-            lot
-        };
-        DataProvider.fetchData('trade', 'POST', dummyTrade);
-        dummyTrade.tradeType = "BUY";
-        dummyTrade.share = share / spiltRatio;
-        dummyTrade.price = price * spiltRatio;
-        dummyTrade.lot += 100; // splitedd dummy trade
-        DataProvider.fetchData('trade', 'POST', dummyTrade);
-    }
-}
 // create all trade table
-const displayTradeTable = (data: Trade[]) => {
-    CommonUtil.getElement('allTrade').append(AppCommonTable.createTable(data as any[],
+const renderTradeTable = (div: HTMLDivElement, data: Trade[]) => {
+    const updateTrade = async (id: string, newValue: string, column: string) => {
+        await AppCommonTable.updateTable(TRADE_TABLE, id, column, newValue, dataTrade);
+    }
+    const deleteTrade = async (id: string) => {
+        await AppCommonTable.deleteTable(TRADE_TABLE, id);
+    }
+    div.append(AppCommonTable.createTable(data as any[],
         {
             table: {
                 onchange: updateTrade,
@@ -309,23 +415,6 @@ const displayTradeTable = (data: Trade[]) => {
         }
     ));
 }
-const resetSummary = () => {
-    CommonUtil.getElement('divStockSummary').innerHTML = "";
-}
-const findSymbol = (symbol: string) => {
-    return (symbolData.find(stock => stock.symbol === symbol));
-}
-const filterTradeData = (symbol: string) => {
-    return tradeData.filter((item: Trade) => item.symbol === symbol);
-}
-// const displaySelSymbolData = () => {
-//     // const selTradeSymbol = CommonUtil.getSelectElement('selTradeSymbol');
-//     // const selData = selTradeSymbol.selectedIndex === 0 ? tradeData :
-//     //     filterTradeData(selTradeSymbol.selectedOptions[0].text);
-//     const allTrade = CommonUtil.getElement('allTrade');
-//     allTrade.innerHTML = "";
-//     // displayTradeTable(selData);
-// }
 /**
  * show all remaining gain/loss and the summery as
  * Symbol, Share, Price, Value, Cost Basis, Gain Loss (Pct), Total Gain/Loss
@@ -334,19 +423,19 @@ const filterTradeData = (symbol: string) => {
  * cost basis
  * gain/loss (pct) 
  */
-const createAllSummary = async (symbolData: Symbol[]) => {
+const createAllSummary = async () => {
     const allSummary: allSummary[] = [];
     let totalCostBasis = 0, totalGainLoss = 0, totalValue = 0;
-    symbolData.forEach(symbol => {
+    dataSymbol.forEach(symbol => {
         const singleSum = createSingleSummary(symbol, false);
         if (!singleSum) { return; }
 
-        const diff = Number((symbol.current_price - symbol.previous_close_price).toFixed(2));
-        const pct = convertPercent(symbol.current_price, diff);
+        const diff = Number((symbol.price - symbol.previous_price).toFixed(2));
+        const pct = convertPercent(symbol.price, diff);
         allSummary.push({
-            symbol: getYahooLink(symbol.symbol),
+            symbol: `<a class="inlineButton" href="${getYahooLink(symbol.symbol)}" target="_blank">${symbol.symbol}</a>`,
             share: singleSum.remaining_share,
-            price: symbol.current_price,
+            price: symbol.price,
             diff,
             pct,
             value: singleSum.current_value,
@@ -366,14 +455,14 @@ const createAllSummary = async (symbolData: Symbol[]) => {
         pct: undefined,
         value: totalValue,
         cost_basis: totalCostBasis,
-        gain_loss: `${formatCurrency(totalGainLoss)} (${pct})`,
+        gain_loss: `${CommonUtil.usdFormatter.format(totalGainLoss)}(${pct})`
     };
     allSummary.push(totalLine);
 
     const stockSummaryDiv = CommonUtil.getElement('divStockSummary');
     stockSummaryDiv.innerHTML = "";
     stockSummaryDiv.appendChild(createH3('All Remaining Gain/Loss'));
-    stockSummaryDiv.appendChild(AppCommonTable.createTable(allSummary));
+    stockSummaryDiv.appendChild(AppCommonTable.createTable(allSummary, { column: [{ columnName: 'gain_loss', enableColor: true }] }));
 }
 
 /**
@@ -395,7 +484,7 @@ const createAllSummary = async (symbolData: Symbol[]) => {
  */
 let remainingLots: any[] = []; // remaining lots
 const createSingleSummary = (symbol?: Symbol, display = true) => {
-    resetSummary();
+    CommonUtil.getElement('divStockSummary').innerHTML = "";
     if (!symbol) {
         return;
     }
@@ -406,7 +495,7 @@ const createSingleSummary = (symbol?: Symbol, display = true) => {
         realized: { cost_basis: 0, gain_loss: 0, summary: "" },
         total: { cost_basis: 0, gain_loss: 0, summary: "" }
     };
-    const trades = filterTradeData(symbol.symbol)
+    const trades = dataTrade.filter((item: Trade) => item.symbol_id === symbol.id);
     if (trades.length === 0) {
         return sum;
     }
@@ -442,7 +531,7 @@ const createSingleSummary = (symbol?: Symbol, display = true) => {
             if (remainingLots[i].lot === lot) {
                 remainingLots[i].share -= share;
                 if (remainingLots[i].share < 0) { // * Assume sell share is no more than a lot
-                    alert(`${trade.symbol}'s lot ${lot} does not have enough share to sell.  the sell share is ${share}`);
+                    alert(`${trade.symbol_id}'s lot ${lot} does not have enough share to sell.  the sell share is ${share}`);
                 }
                 lotCostBasis = share * remainingLots[i].price;
                 lotGainLoss = share * price - lotCostBasis;
@@ -469,7 +558,7 @@ const createSingleSummary = (symbol?: Symbol, display = true) => {
     remainingLots.forEach(t => {
         const { share, price } = t;
         sum.remaining_share += share;
-        sum.current_value += share * (display ? currentPrice : symbol.current_price); // currentPrice is not valid when being called from createAllSummary
+        sum.current_value += share * (display ? currentPrice : symbol.price); // currentPrice is not valid when being called from createAllSummary
         sum.unrealized.cost_basis += share * price;
     });
     sum.unrealized.gain_loss = sum.current_value - sum.unrealized.cost_basis;
@@ -479,6 +568,56 @@ const createSingleSummary = (symbol?: Symbol, display = true) => {
     convertGainLossSummery(sum.realized);
     convertGainLossSummery(sum.total);
 
+    const displaySingleSummary = (singleSum: SingleSummary) => {
+        const snakeToTitle = (str: string) => {
+            // convert total_amount to Total Amount
+            return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        const divStockSummary = CommonUtil.getElement('divStockSummary');
+        divStockSummary.appendChild(createH3('Summary'));
+        const sum = Object.entries(singleSum).map(([key, value]) => {
+            const item = snakeToTitle(key);
+            let gain_loss = (typeof value === "object") ?
+                (value as GainLossSummary).summary :
+                key.indexOf('share') !== -1 ? value : CommonUtil.usdFormatter.format(value);
+            return { item, gain_loss };
+        });
+        divStockSummary.appendChild(AppCommonTable.createTable(sum));
+    }
+    const displayRemainingShares = (currentPrice: number, lots: any[]) => {
+        const divStockSummary = CommonUtil.getElement('divStockSummary');
+        divStockSummary.appendChild(createH3('Remaining share (FIFO)'));
+
+        const remainingShareBySymbol = [];
+        for (let lot of lots) {
+            let lotValue = lot.share * currentPrice;
+            let lotCost = lot.share * lot.price;
+            let gainLoss = lotValue - lotCost;
+            remainingShareBySymbol.push({
+                share: lot.share,
+                Purchase_price: `${formatNumber(lot.price)}`,
+                Current_price: `${formatNumber(currentPrice)}`,
+                Unrealized_Gain_Loss: `${CommonUtil.usdFormatter.format(gainLoss)} (${convertPercent(lotCost, gainLoss)})`
+            }
+            );
+        }
+
+        divStockSummary.appendChild(AppCommonTable.createTable(
+            remainingShareBySymbol,
+            {
+                table: {
+                    header: ['share', 'purchase price', 'current price', 'unrealized gain/loss'],
+                }
+            }
+        ));
+    }
+    const displayTradeLog = (tradeDataBySymbol: Trade[]) => {
+        const divStockSummary = CommonUtil.getDivElement('divStockSummary');
+        divStockSummary.appendChild(createH3('Trading history'));
+        renderTradeTable(divStockSummary, tradeDataBySymbol);
+    }
+
     if (display) {
         displaySingleSummary(sum);
         displayRemainingShares(currentPrice, remainingLots);
@@ -486,56 +625,7 @@ const createSingleSummary = (symbol?: Symbol, display = true) => {
     }
     return sum;
 }
-const displaySingleSummary = (singleSum: SingleSummary) => {
-    const snakeToTitle = (str: string) => {
-        // convert total_amount to Total Amount
-        return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-    }
-
-    const divStockSummary = CommonUtil.getElement('divStockSummary');
-    divStockSummary.appendChild(createH3('Summary'));
-    const sum = Object.entries(singleSum).map(([key, value]) => {
-        const item = snakeToTitle(key);
-        let gain_loss = (typeof value === "object") ?
-            (value as GainLossSummary).summary :
-            key.indexOf('share') !== -1 ? value : formatCurrency(value);
-        return { item, gain_loss };
-    });
-    divStockSummary.appendChild(AppCommonTable.createTable(sum));
-}
-const displayRemainingShares = (currentPrice: number, lots: any[]) => {
-    const divStockSummary = CommonUtil.getElement('divStockSummary');
-    divStockSummary.appendChild(createH3('Remaining share (FIFO)'));
-
-    const remainingShareBySymbol = [];
-    for (let lot of lots) {
-        let lotValue = lot.share * currentPrice;
-        let lotCost = lot.share * lot.price;
-        let gainLoss = lotValue - lotCost;
-        remainingShareBySymbol.push({
-            share: lot.share,
-            Purchase_price: `${formatNumber(lot.price)}`,
-            Current_price: `${formatNumber(currentPrice)}`,
-            Unrealized_Gain_Loss: `${formatCurrency(gainLoss)} (${convertPercent(lotCost, gainLoss)})`
-        }
-        );
-    }
-
-    divStockSummary.appendChild(AppCommonTable.createTable(
-        remainingShareBySymbol,
-        {
-            table: {
-                header: ['share', 'purchase price', 'current price', 'unrealized gain/loss'],
-            }
-        }
-    ));
-}
-const displayTradeLog = (tradeDataBySymbol: Trade[]) => {
-    const divStockSummary = CommonUtil.getElement('divStockSummary');
-    divStockSummary.appendChild(createH3('Trading history'));
-    divStockSummary.appendChild(AppCommonTable.createTable(tradeDataBySymbol));
-}
-
+//#region helper
 const createH3 = (title: string) => {
     let fragment = document.createDocumentFragment();
     let h3Elem = document.createElement("h3");
@@ -546,14 +636,15 @@ const createH3 = (title: string) => {
 const formatNumber = (amt: number) => {
     return amt.toLocaleString();
 };
-const formatCurrency = (amt: number) => {
-    return amt.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 const convertPercent = (base: number, gainLoss: number) => {
     return `${base === 0 ? 0 : (100 * gainLoss / base).toFixed(2)}%`;
 }
 const convertGainLossSummery = (gainLoss: GainLossSummary) => {
     const pct = gainLoss.cost_basis === 0 ? 0 : (100 * gainLoss.gain_loss / gainLoss.cost_basis).toFixed(2);
-    gainLoss.summary = `${formatCurrency(gainLoss.gain_loss)}(${pct}%)`;
+    gainLoss.summary = `${CommonUtil.usdFormatter.format(gainLoss.gain_loss)}(${pct}%)`;
     return gainLoss.summary
 }
+const getYahooLink = (symbol: string) => {
+    return `https://finance.yahoo.com/quote/${symbol}/`;
+}
+//#endregion
