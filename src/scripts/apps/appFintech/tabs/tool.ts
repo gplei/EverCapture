@@ -107,6 +107,13 @@ export const initTool = async () => {
 
     // sql
     const selSchema = document.getElementById('selSchema')! as HTMLSelectElement;
+    const sqlSchema = `
+SELECT schema_name AS database_name 
+FROM information_schema.schemata 
+WHERE schema_name NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys')
+`;debugger
+    const schemas =  await DataProvider.getSqlResult(sqlSchema);
+    CommonUtil.populateSelect(selSchema, CommonUtil.mapObjectToOption(schemas, 'database_name', 'database_name'));
     const selTable = document.getElementById('selTable')! as HTMLSelectElement;
     let table = "";
     selSchema.addEventListener("change", async () => {

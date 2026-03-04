@@ -1,19 +1,20 @@
 <div class="container">
     <p class="tab-title">Summary</p>
-    <select id="selManageType">
-        <option>-- Manage Account/Symbol --</option>
-    </select>
-    <div id="divMgr" class="hidden container" style="background-color: rgb(209, 227, 227);">
+    <div class=" container" style="background-color: rgb(222, 237, 237);">
+        <select id="selManageType">
+            <option>-- Manage Account/Symbol --</option>
+        </select>
         <div id="divAccountManager" class="hidden">
             <select id="selAccountMgr">
                 <option value="">-- Select Account --</option>
             </select>
-            <input type="text" id="txtAccountMgr" placeholder="Account name" />
-            <input type="text" id="txtInstituteMgr" placeholder="Institue" />
-            <button id="btnSaveAccount" type="button">Add / Update Account</button>
-            <span id="accountMgrMessage" class="lightLabel"></span>
-            <button id="btnAddBalance">Add Balance</button>
+            <button id="btnAddBalance" class="hidden">Add Balance</button>
             <span id="balanceMsg" class="lightLabel">Use the Add Symbol section above to add/update symbols.</span>
+            <span id="accountMgrMessage" class="lightLabel"></span>
+            <input type="date" id="dtBalence" />
+            <input type="text" id="txtAccountMgr" class="hidden" placeholder="Account name" />
+            <input type="text" id="txtInstituteMgr" class="hidden" placeholder="Institue" />
+            <button id="btnSaveAccount" type="button">Add / Update Account</button>
             <div id="divAccountBalance"></div>
         </div>
 

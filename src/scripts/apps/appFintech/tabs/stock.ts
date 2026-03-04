@@ -92,7 +92,7 @@ const initData = async () => {
     await fetchAccount();
     await fetchSymbol();
     await fetchTrade();
-    await fetchAccountBalance();
+    await fetchAccountBalance((new Date()).toISOString().split('T')[0]);
 }
 //#region fetch
 const fetchAndRenderAssetType = async (selectedValue?: string) => {
@@ -112,9 +112,9 @@ const fetchSymbol = async () => {
 const fetchTrade = async () => {
     dataTrade = await AppCommonTable.getTable(TRADE_TABLE);
 }
-const fetchAccountBalance = async () => {
+const fetchAccountBalance = async (date: string) => {
     dataAcctBalance = await AppCommonTable.getTable(ACCOUNT_BALANCE_TABLE);
-    acctBalSumData = await DataProvider.fetchData(`acctBalance/2026-02-27`);
+    acctBalSumData = await DataProvider.fetchData(`acctBalance/${date}`);
 }
 //#endregion
 const initElement = () => {
@@ -128,9 +128,11 @@ const initElement = () => {
             const selManageType = CommonUtil.getSelectElement('selManageType');
             CommonUtil.populateSelect(selManageType, CommonUtil.mapArrayToOption(['Account', 'Symbol']));
             selManageType.addEventListener('change', () => {
-                // show/hide the whole divMgr
-                CommonUtil.showHideContainer('divMgr', selManageType.selectedIndex === 0 ? true : false);
-                if (selManageType.selectedIndex === 0) return;
+                if (selManageType.selectedIndex === 0) {
+                    CommonUtil.showHideContainer('divAccountManager', true);
+                    CommonUtil.showHideContainer('divSymbolMgr', true);
+                    return;
+                }
 
                 const mode = selManageType.value;
                 const isAccount = mode === 'Account';
@@ -147,7 +149,10 @@ const initElement = () => {
             const btnSaveAccount = CommonUtil.getButtonElement('btnSaveAccount');
             const accountMgrMessage = CommonUtil.getSpanElement('accountMgrMessage');
             const balanceMsg = CommonUtil.getSpanElement('balanceMsg');
+            const dtBalence = CommonUtil.getInputElement('dtBalence');
             const divAccountBalance = CommonUtil.getDivElement('divAccountBalance');
+
+            dtBalence.value = (new Date()).toISOString().split('T')[0];
 
             const renderAccountBalance = async (accountId: string) => {
                 divAccountBalance.innerHTML = "";
@@ -184,7 +189,7 @@ const initElement = () => {
                     (sum: number, acc: any) => sum + (acc.total_balance ?? 0),
                     0
                 );
-                balanceMsg.textContent = `Total balance: ${CommonUtil.usdFormatter.format(total)}`;
+                balanceMsg.textContent = `Total balance: ${CommonUtil.usdFormatter.format(total)} as of `;
             }
 
             const renderSelAccountMgr = () => {
@@ -194,8 +199,10 @@ const initElement = () => {
             renderSelAccountMgr();
             selAccountMgr.addEventListener('change', async () => {
                 if (selAccountMgr.selectedIndex === 0) {
+                    btnAddBalance.classList.add('hidden');
                     renderBalanceSummary();
                 } else {
+                    btnAddBalance.classList.remove('hidden');
                     balanceMsg.textContent = '';
                     const selected = selAccountMgr.selectedOptions[0]?.textContent ?? '';
                     txtAccountMgr.value = selAccountMgr.selectedIndex > 0 ? selected : '';
@@ -204,7 +211,16 @@ const initElement = () => {
                 }
             });
 
+            dtBalence.addEventListener('change', async () => {
+                await fetchAccountBalance(dtBalence.value);
+                renderBalanceSummary();
+            })
             btnSaveAccount.addEventListener('click', async () => {
+                if (txtAccountMgr.classList.contains('hidden')) {
+                    txtAccountMgr.classList.remove('hidden');
+                    txtInstituteMgr.classList.remove('hidden');
+                    return;
+                }
                 const accountName = txtAccountMgr.value.trim();
                 const institute = txtInstituteMgr.value.trim();
                 if (!accountName || !institute) {
@@ -227,6 +243,10 @@ const initElement = () => {
                 selAccountMgr.value = match?.id ?? '';
                 if (accountMgrMessage) accountMgrMessage.textContent = 'Saved';
                 await renderAccountBalance(selAccountMgr.value);
+
+                txtAccountMgr.classList.add('hidden');
+                txtInstituteMgr.classList.add('hidden');
+
             });
 
             const btnAddBalance = CommonUtil.getButtonElement('btnAddBalance');
@@ -237,7 +257,7 @@ const initElement = () => {
                 }
                 const id = await AppCommonTable.addTable(ACCOUNT_BALANCE_TABLE);
                 AppCommonTable.updateTable(ACCOUNT_BALANCE_TABLE, id, 'account_id', selAccountMgr.value);
-                await fetchAccountBalance();
+                await fetchAccountBalance(dtBalence.value);
                 renderAccountBalance(selAccountMgr.value);
             }
             btnAddBalance.addEventListener('click', addAccountBalance);

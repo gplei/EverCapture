@@ -90,25 +90,39 @@ const attachEditableCellFocusoutHandler = (
 ) => {
     if (!onchange || tbody.dataset.focusoutBound === '1') return;
 
-    tbody.addEventListener("focusout", (event) => {
-        const td = event.target as HTMLTableCellElement;
-        if (!td || td.tagName !== 'TD' || td.dataset.editable !== '1') return;
+    tbody.addEventListener("focusout", (event) => {debugger
+        const target = event.target as HTMLElement | null;
+        const td = target?.closest('td') as HTMLTableCellElement | null;
+        if (!td) return;
+        if (!td.isContentEditable && td.dataset.editable !== '1') return;
 
-        const rowId = td.dataset.rowId ?? '';
-        const colName = td.dataset.colName ?? '';
+        const tr = td.parentElement as HTMLTableRowElement | null;
+        if (!tr) return;
+
+        const rowId = td.dataset.rowId ?? (tr.cells[0]?.textContent?.trim() ?? '');
+        const colNameFromDataset = td.dataset.colName ?? '';
+        const colIndex = Array.from(tr.cells).indexOf(td);
+        const headerText = colIndex >= 0
+            ? (tbody.parentElement?.querySelectorAll('thead th')[colIndex]?.textContent ?? '')
+            : '';
+        const colName = (colNameFromDataset || headerText.replace(/\s+/g, '_')).trim();
+        if (!rowId || !colName || colName.toLowerCase() === 'action') return;
         let newValue = td.textContent ?? "";
 
-        if (td.dataset.currency === '1') {
-            if (newValue.trim() !== '' && !isNaN(Number(newValue))) {
-                newValue = (0 + parseFloat(newValue.replace(/[^0-9.-]/g, ""))).toString();
-            } else {
-                newValue = '';
-            }
+        if (td.dataset.currency === '1' || isColumnCurrency(colName)) {
+            newValue = normalizeCurrencyValue(newValue);
         }
         onchange(rowId, newValue, colName);
     });
 
     tbody.dataset.focusoutBound = '1';
+}
+const normalizeCurrencyValue = (rawValue: string): string => {
+    const normalized = (rawValue ?? '').replace(/[^0-9.-]/g, '').trim();
+    if (normalized === '' || Number.isNaN(Number(normalized))) {
+        return '';
+    }
+    return `${Number(normalized)}`;
 }
 const createHeader = (data: Array<DataRow>, featureParam?: TableParam) => {
     const ondelete = featureParam?.table?.ondelete ?? false;
@@ -189,13 +203,13 @@ const createRow = (row: DataRow, featureParam?: TableParam, columnSpecMap: Map<s
         }
 
         td.contentEditable = isTdEditable.toString();
+        if (isColumnCurrency(colName, columnSpec)) {
+            td.dataset.currency = '1';
+        }
         if (canEditCell && onchange) {
             td.dataset.editable = '1';
             td.dataset.rowId = String(row.id);
             td.dataset.colName = colName;
-            if (isColumnCurrency(colName, columnSpec)) {
-                td.dataset.currency = '1';
-            }
         }
         tr.appendChild(td);
     });
@@ -263,7 +277,9 @@ const renderCurrency = (td: HTMLTableCellElement, value: string) => {
 }
 const enableCellEdit = (row: HTMLTableRowElement, column?: Array<ColumnSpec>, bEdit = false) => {
     const th = row?.parentElement?.parentElement?.childNodes[0] as HTMLTableCellElement;
+    const keyName = 'id';
     Array.from(row.cells).forEach((c, i) => {
+        const colNameFromHeader = th.children[0].childNodes[i]?.textContent?.replace(/\s+/g, '_') ?? '';
         if (column !== undefined && column !== null) {
             const colName = th.children[0].childNodes[i].textContent;
             const columnSpec = column?.find(spec => spec.columnName.replace('_', ' ') === colName);
@@ -280,6 +296,25 @@ const enableCellEdit = (row: HTMLTableRowElement, column?: Array<ColumnSpec>, bE
                         }
                     }
                 }
+                if (columnSpec.type === 'CURRENCY') {
+                    c.dataset.currency = '1';
+                }
+            }
+        }
+        // Ensure delegated handler has metadata even for row-edit mode tables.
+        if (bEdit) {
+            if (!c.dataset.rowId) {
+                const idCell = row.cells[0]?.textContent ?? '';
+                c.dataset.rowId = idCell;
+            }
+            if (!c.dataset.colName) {
+                c.dataset.colName = colNameFromHeader;
+            }
+            if (c.dataset.colName !== keyName) {
+                c.dataset.editable = '1';
+            }
+            if (!c.dataset.currency && isColumnCurrency(colNameFromHeader)) {
+                c.dataset.currency = '1';
             }
         }
         c.contentEditable = bEdit.toString();
@@ -494,12 +529,20 @@ export const deleteTable = async (table: string, id: string) => {
 }
 export const updateTable = async (table: string, id: string, column: string, newValue: any, data?: Array<any>) => {
     try {
-        await DataProvider.fetchData(`table`, 'PUT', { id, table, column, newValue });
+        const shouldUseNullForEmpty = (colName: string, value: unknown) => {
+            if (value !== '') return false;
+            if (isColumnCurrency(colName)) return true;
+            // Common numeric-style columns across fintech tables.
+            return /(amount|balance|share|qty|quantity|price|cost|value|gain|loss|days|lot|rate|percent|pct)$/i.test(colName);
+        };
+
+        const payloadValue = shouldUseNullForEmpty(column, newValue) ? null : newValue;
+        await DataProvider.fetchData(`table`, 'PUT', { id, table, column, newValue: payloadValue });
         // mutate data to reflect change
         if (data) {
             const item = findItemById(id, data, 'id', 'FIND');
-            if (item.length > 0 && item[0][column] != newValue) {
-                item[0][column] = newValue;
+            if (item.length > 0 && item[0][column] != payloadValue) {
+                item[0][column] = payloadValue;
             }
         }
     } catch (error) {

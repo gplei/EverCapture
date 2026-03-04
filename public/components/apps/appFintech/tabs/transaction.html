@@ -1,26 +1,28 @@
 <div class="container">
     <p class="tab-title">Transactions</p>
-    <select id="selOptType" required>
-        <option value="">-- Manage options --</option>
-    </select>
-    <div id="divOptType" class="hidden container" style="background-color: rgb(209, 227, 227);">
-        <div id="divCatMgr" class="hidden">
-            <select id="selCategoryMgr" required>
-                <option>-- Select category --</option>
-            </select>
-            <input id="txtCatMgr" type="text" />
-            <button id='btnAddUpdCat'>Add/Update Category</button>
-            <select id="selSubcategoryMgr" required>
-                <option>-- Select subcategory --</option>
-            </select>
-            <input id="txtSubcatMgr" type="text" />
-            <button id='btnAddUpdSubcat'>Add/Update Subcategory</button>
-        </div>
-        <div id="divTripMgr" class="hidden">
+    <div class="container" style="background-color: rgb(222, 237, 237);">
 
+        <select id="selOptType" required>
+            <option value="">-- Manage options --</option>
+        </select>
+        <div id="divOptType" class="hidden">
+            <div id="divCatMgr" class="hidden">
+                <select id="selCategoryMgr" required>
+                    <option>-- Select category --</option>
+                </select>
+                <input id="txtCatMgr" type="text" />
+                <button id='btnAddUpdCat'>Add/Update Category</button>
+                <select id="selSubcategoryMgr" required>
+                    <option>-- Select subcategory --</option>
+                </select>
+                <input id="txtSubcatMgr" type="text" />
+                <button id='btnAddUpdSubcat'>Add/Update Subcategory</button>
+            </div>
+            <div id="divTripMgr" class="hidden">
+
+            </div>
         </div>
     </div>
-
     <div id="divFilter">
         <label>Filter: </label>
         <select id="selPeriod">

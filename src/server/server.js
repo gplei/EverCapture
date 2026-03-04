@@ -86,7 +86,7 @@ const PORTImg = 8000;
 appImg.use(corsImg());
 
 // Create upload directory if not exist
-const media_dir = path.join(__dirname, "../../upload_media");
+const media_dir = path.join(__dirname, "../../../upload_media"); // upload_media is independent from code
 
 if (!fs.existsSync(media_dir)) {
     fs.mkdirSync(media_dir, { recursive: true });
