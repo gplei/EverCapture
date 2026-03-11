@@ -211,9 +211,10 @@ export const deleteCrumbImage = async (id: number) => {
 }
 /**
  * fetch all real time prices and update symbol table
+ * @returns response with status and list of failed updates
  */
 export const updateAllPrices = async () => {
-    await fetchData('price', 'PUT');
+    return await fetchData('price', 'PUT');
 }
 /**
  * fetch real time price for symbol and update symbol table

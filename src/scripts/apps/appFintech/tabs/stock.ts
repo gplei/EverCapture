@@ -380,11 +380,22 @@ const initElement = () => {
         document.getElementById('btnUpdPrices')?.addEventListener("click", async () => {
             const txtCurrPrice = CommonUtil.getInputElement('txtCurrPrice');
             if (selSymbol.selectedIndex === 0) {
-                await DataProvider.updateAllPrices();
-                DataProvider.showMessage("All quotes are updated");
-                await fetchSymbol();
-                renderSelSymbol(selSymbol);
-                createAllSummary();
+                DataProvider.showMessage("Fetching stock prices...");
+                try {
+                    const response = await DataProvider.updateAllPrices();
+                    if (response?.failed && response.failed.length > 0) {
+                        const failedMsg = response.failed.map((f: any) => `${f.symbol}: ${f.error}`).join(', ');
+                        DataProvider.showMessage(`Updated with failures: ${failedMsg}`);
+                    } else {
+                        DataProvider.showMessage("All quotes are updated");
+                    }
+                    await fetchSymbol();
+                    renderSelSymbol(selSymbol);
+                    createAllSummary();
+                } catch (error) {
+                    const err = error as Error;
+                    DataProvider.showMessage(`Failed to fetch prices: ${err.message}`);
+                }
             } else {
                 if (selectedSymbol) {
                     selectedSymbol.price = Number(txtCurrPrice.value) * 1

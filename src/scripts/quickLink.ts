@@ -1,6 +1,6 @@
 import * as DataProvider from './db/dataProvider.ts';
 import * as CommonUtil from './common.ts';
-import { initQuickLink } from '../personal/qIcon/initQIcon.ts';
+import { initQuickLink } from './initQIcon.ts';
 
 CommonUtil.InitRegistry.initSidePanel = async  () => {
     initQuickLink();

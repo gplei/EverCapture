@@ -210,13 +210,10 @@ async function getStockQuote(ticker) {
                 throw new Error(`HTTP ${response.status}`);
             }
             const data = await response.json();
-            if (typeof data?.c === 'number') {
+            if (typeof data?.c === 'number' && data.c > 0 && typeof data?.pc === 'number' && data.pc > 0) {
                 return saveToCache(data);
             }
-            if (data?.c === 0 && data?.pc === 0) {
-                throw new Error('No quote data returned for symbol');
-            }
-            throw new Error('Unexpected Finnhub response format');
+            throw new Error(`Invalid quote data: c=${data?.c}, pc=${data?.pc}`);
         } catch (error) {
             lastError = error;
             logger.logError(`Finnhub quote failed for ${normalizedTicker} (attempt ${attempt + 1}/3): ${error.message}`);
