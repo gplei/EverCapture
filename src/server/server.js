@@ -12,7 +12,7 @@ const serverHost = process.env.SERVER_HOST || 'localhost';//'pingmac.local';
 const serverOrigin = serverHost.startsWith('http://') || serverHost.startsWith('https://')
     ? serverHost
     : `http://${serverHost}`;
-const PORT = 3000;
+const PORT = process.env.SERVER_PORT || 3000;
 
 const app = express();
 // const { json: _json } = pkg;
