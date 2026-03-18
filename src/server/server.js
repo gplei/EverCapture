@@ -82,7 +82,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const appImg = express();
-const PORTImg = 8000;
+const PORTImg = process.env.IMAGE_SERVER_PORT;;
 appImg.use(corsImg());
 
 // Create upload directory if not exist
