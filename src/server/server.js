@@ -158,5 +158,5 @@ const convertHEICFiles = async (req) => {
 
 // appImg.listen(PORTImg, () => {
 appImg.listen(PORTImg, '0.0.0.0', () => {
-    console.log(`✅ Media server running at ${serverOrigin}:${PORTImg}`);
+    console.log(`🚀 Media server running at ${serverOrigin}:${PORTImg}`);
 });
