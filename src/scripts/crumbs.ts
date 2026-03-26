@@ -32,6 +32,12 @@ window.onload = async () => {
     await populateCrumbs();
 }
 const initEventHandler = () => {
+    // top toggle button handler
+    const topToggleBtn = document.getElementById('btnShowHide');
+    topToggleBtn?.addEventListener("click", () => {
+        (window.showHideBlock as any)();
+    })
+    
     // tag related handler
     const searchTagInput = document.getElementById('searchTagInput') as HTMLInputElement;
     searchTagInput.addEventListener("input", () => {
@@ -107,7 +113,7 @@ const createCrumbElem = async (row: CommonUtil.Crumb) => {
     const pin = `<a class=${row.pin ? 'pin' : 'unpin'} id='btnPin${rowId}' onclick=window.togglePin(${rowId})></a>`;
     const edit = `<a class='edit' href='/pages/addeditcrumb.html?id=${rowId}'></a>`;
     const del = `<a class='delete' id='btnDel${rowId}' onclick=window.delCrumb(${rowId})></a>`;
-    const showHide = `<a class='up' id='btnShowHide${rowId}' onclick=window.showHideBlock(${rowId})></a>`;
+    const showHide = `<a class='down' id='btnShowHide${rowId}' onclick=window.showHideBlock(${rowId})></a>`;
     const elemRight = `<div id='r${rowId}' class="hidden"> <span class='lbl-title'>${pin} ${edit} ${del}&nbsp;&nbsp;</span> ${showHide}</div>`;
 
     // description
@@ -115,7 +121,7 @@ const createCrumbElem = async (row: CommonUtil.Crumb) => {
     const urlImg = imageLnk === '' ? '' : `<div class="image-gallery">${imageLnk}</div>`;
     const safeDesc = CommonUtil.sanitizeHtml(row.description ?? '');
     const description = `<div>${safeDesc}</div>`;
-    let elemDesc = `<div id=block${rowId} class='desc'>${urlImg}${description}</div>`;
+    let elemDesc = `<div id=block${rowId} class='desc' style='display: none;'>${urlImg}${description}</div>`;
 
     crumb.innerHTML = `<div class='title'><b>${title}</b> <span class='lbl-title'>${formattedDate}</span> ${dispTagHtml}${elemRight}</div>${elemDesc}`;
 

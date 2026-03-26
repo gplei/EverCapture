@@ -53,7 +53,7 @@ const TRANSACTION_LINES_TABLE = 'TXN_TRANSACTION_LINES';
 const SPLIT_CATEGORY_IND = '<Split>'; // on this value, category has sub items in more details
 const UNCATEGORIZED = '<Uncategorized>';
 
-const arrPeriod = ['Year to date', '2025', '2024'];
+const arrPeriod = ['Year to date', ...Array.from({length: 5}, (_, i) => (new Date().getFullYear() - i - 1).toString())];
 const dataType = ['expense', 'income', 'transfer'];
 
 let dataTransaction: Array<Transaction>;
@@ -488,19 +488,20 @@ const initElement = async () => {
         const btnAddTran = CommonUtil.getButtonElement('btnAddTran');
         btnAddTran.addEventListener("click", async () => {
             const id = await AppCommonTable.addTable(TRANSACTIONS_TABLE);
+            AppCommonTable.updateTable(TRANSACTIONS_TABLE, id, 'date', new Date().toISOString().slice(0, 10));
             renderedData.unshift({
-                id: id.toString(),
                 date: new Date(),
+                type: '',
                 description: '',
                 amount: 0,
-                trip: '',
-                type: '',
                 category: '',
                 note: '',
+                trip: '',
                 account_from: '',
                 account_to: '',
                 source: '',
-                owner: ''
+                owner: '',
+                id: id.toString()
             });
             renderTransactions(renderedData);
         })

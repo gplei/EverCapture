@@ -47,7 +47,10 @@ export const showHidePin = (id:number, pin: boolean) => {
     }
 }
 
-
 export const showHideSideBlock = (id?:number) => {
     CommonUtil.showHideBlock(id, 'showHideSide', 'sideBlock');
 }
+
+(window as any).unPin = unPin;
+(window as any).showHidePin = showHidePin;
+(window as any).showHideSideBlock = showHideSideBlock;

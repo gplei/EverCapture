@@ -81,7 +81,7 @@ const populateCrumbsGroupByTag = async (crumbData:CommonUtil.CrumbByTag) => {
                     entry = { tagName:tag, crumbs: [] };
                     tagCrumb.push(entry);
                 }
-                entry.crumbs?.push({ id: item.id, title: item.title, url: item.url });
+                entry.crumbs?.push({ id: item.id, title: item.title, url: item.url, description: item.description });
             }
         });
     });
@@ -107,7 +107,8 @@ const displayTagCrumb = (tag:string | null, crumbs:CommonUtil.Crumb[]) => {
     let tagCrumbs = '';
     crumbs.forEach((r) => {
         const type = CommonUtil.getTypeLink(r);
-        const title = `<a class="pretty-anchor" href='/pages/crumb.html?id=${r.id}' >${r.title || '[no title]'}</a>`;
+        const tooltip = (tag === 'qLink' && r.description) ? ` title="${r.description}"` : '';
+        const title = `<a class="pretty-anchor"${tooltip} href='/pages/crumb.html?id=${r.id}' >${r.title || '[no title]'}</a>`;
         tagCrumbs += `<div>${type}${title}</div>`;
     });
     innerHTML += `<div class='crumbBlock'>${tagHeader}<div id='block${tag}' class='crumbContainer'>${tagCrumbs}</div></div>`;

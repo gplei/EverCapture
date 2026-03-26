@@ -5,17 +5,6 @@ import * as DataProvider from './db/dataProvider.ts';
 
 let crumb: CommonUtil.Crumb;
 window.onload = async () => {
-    const viewType = document.getElementById('viewType');
-    viewType?.addEventListener("click", () => {
-        viewType.className = viewType.className === 'Note' ? 'Image' : 'Note';
-        displayCrumb();
-    })
-    const del = document.getElementById('del');
-    del?.addEventListener("click", () => {
-        DataProvider.deleteCrumbById(crumb.id);
-        DataProvider.redirectPage(document.referrer);
-    })
-
     await CommonUtil.validateAuthentication();
     if (!CommonUtil.GlobalStore.userId) {
         DataProvider.redirectPage('/');
@@ -27,6 +16,17 @@ window.onload = async () => {
     // await CommonUtil.loadComponent('addImgPopup-placeholder', 'components/popup/addImgPopup.html');
 
     CommonUtil.baseOnLoad();
+
+    const viewType = document.getElementById('viewType');
+    viewType?.addEventListener("click", () => {
+        viewType.className = viewType.className === 'Note' ? 'Image' : 'Note';
+        displayCrumb();
+    })
+    const del = document.getElementById('del');
+    del?.addEventListener("click", async () => {
+        await DataProvider.deleteCrumbById(crumb.id);
+        DataProvider.redirectPage(document.referrer);
+    })
 
     displayCrumb();
 }
@@ -91,4 +91,9 @@ const applyBackground = (tags: string) => {
 window.deleteCrumbImage = async (id: number) => {
     const image = document.getElementById('image')!; // ! means trust me, this is not null
     await CommonUtil.deleteCrumbImage(id, crumb, image);
+}
+
+window.delCrumb = async () => {
+    await DataProvider.deleteCrumbById(crumb.id);
+    DataProvider.redirectPage(document.referrer);
 }

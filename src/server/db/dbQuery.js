@@ -18,7 +18,7 @@ const crumbSelectId = `SELECT c.id FROM ${ecTable.c} LEFT JOIN ${ecTable.x} on c
 const crumbWhere = `c.user_id = ? AND c.deleted=0`;
 const imgUrl = `c.url like '%gif%' or c.url like '%png%' or c.url like '%jpg%'`;
 const crumbWithImg = `c.id in (select distinct crumb_id from ec_media WHERE media_type='image')`;
-const crumbOrder = 'ORDER BY c.created_at desc';
+const crumbOrder = 'ORDER BY c.date desc';
 const tagFields = 't.id, t.tag_name';
 const tagOrder = 'ORDER BY t.tag_name';
 const limitOffset = 'LIMIT 10 OFFSET 20'; //  SELECT * FROM ec_crumb LIMIT 10 OFFSET 20;
